@@ -1,0 +1,14 @@
+# FastAPI核心依赖
+fastapi>=0.100.0
+uvicorn>=0.23.2
+pydantic-settings>=2.0.0
+
+# 原有依赖
+python-dotenv>=1.0.0
+openai>=1.0.0
+pymilvus==2.6.3
+psycopg2-binary>=2.9.9
+dashscope>=1.23.0
+requests>=2.31.0
+pycryptodome>=3.19.0
+rich>=13.0.0
