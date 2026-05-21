@@ -5,8 +5,14 @@ from loguru import logger
 from config import settings
 
 LOG_LEVEL = settings.LOG_LEVEL
+TEST_MODE = settings.TEST_MODE
 
-folder_ = "./log/"
+if not TEST_MODE:
+    folder_ = "./prod/log/"
+else:
+    folder_ = "./test/log/"
+os.makedirs(folder_, exist_ok=True)
+
 rotation_ = "5 MB"
 retention_ = "90 days"
 encoding_ = "utf-8"

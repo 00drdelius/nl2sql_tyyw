@@ -68,30 +68,39 @@ class LLMService:
         )
         output_think_prefix=enable_thinking
         output_think_suffix=False
+        reasoning_tokens=0
+        completion_tokens=0
 
         assistant_content = ""
         async for chunk in completion:
             # logger.debug(f"[GENERATE SQL CHUNK] {chunk.model_dump_json()}")
             if chunk.choices:
+                content=""
                 if (hasattr(chunk.choices[0].delta, 'reasoning_content')
-                    and chunk.choices[0].delta.reasoning_content):
+                        and chunk.choices[0].delta.reasoning_content):
+
                     content:str = chunk.choices[0].delta.reasoning_content
                     if output_think_prefix:
                         content = "<think>\n"+content
                         output_think_prefix=False
                         output_think_suffix=True
 
+                    reasoning_tokens+=1
+
                 if chunk.choices[0].delta.content:                        
                     content = chunk.choices[0].delta.content
                     if output_think_suffix:
                         content = "</think>\n"+content
                         output_think_suffix=False
+                completion_tokens+=1
+
                 yield content  # 逐块返回
                 assistant_content+=content
         
         logger.debug("[GENERATE DIALOGUE]")
         logger.debug(f"[USER]\n{messages[-1]['content']}\n\n")
-        logger.debug(f"[ASSISTANT]\n{assistant_content}\n\n")
+        logger.info(f"[ASSISTANT]\n{assistant_content}\n\n")
+        logger.info(f"[USAGE] reasoning_tokens:{reasoning_tokens} completion_tokens:{completion_tokens}")
 
 
     async def generate_sql(self, messages: Iterable[ChatCompletionMessageParam]):

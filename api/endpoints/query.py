@@ -132,13 +132,13 @@ async def generate_stream(request: QueryRequest) -> AsyncGenerator[str, None]:
         collection_name = intent
         table_descs = await milvus_service.search_table_schema(query_embedding, collection_name)
 
-        logger.debug(f"[TABLE DESCS] {table_descs}")
+        # logger.debug(f"[TABLE DESCS] {table_descs}")
         def get_table_brief_desc():
             brief_descs=re.findall('(?<=表名：).*?(?=\n)',table_descs)
             return '\n'.join(brief_descs)
 
         brief_descs = get_table_brief_desc()
-        logger.info(f"完成搜索匹配的表结构: \n{brief_descs}")
+        logger.debug(f"完成搜索匹配的表结构: \n{brief_descs}")
         # 发送表结构信息
         retrieval_resp = ChunkResponse(
             id=query_id, type='retrieve_tables', content=f"[查询到相关表结构] {brief_descs}")
