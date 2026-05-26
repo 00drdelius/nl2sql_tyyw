@@ -1,7 +1,8 @@
 from typing import *
 
 import rich
-from openai import AsyncOpenAI
+# from openai import AsyncOpenAI
+from services.custom_openai import CAsyncOpenAI
 from openai.types.chat.chat_completion_message_param import ChatCompletionMessageParam
 
 from config import settings
@@ -12,7 +13,7 @@ class LLMService:
     
     def __init__(self):
         # 创建两个异步OpenAI客户端实例
-        self.client = AsyncOpenAI(
+        self.client = CAsyncOpenAI(
             api_key=settings.OPENAI_API_KEY_1,
             base_url=settings.OPENAI_API_BASE_1)
     
@@ -27,6 +28,7 @@ class LLMService:
                 {"role": "user", "content": f"# 用户问题\n{user_query}"}
             ],
             stream=False,
+            extra_authorization_key=settings.FLASH_MODEL_KEY,
         )
         llm_output = completion.choices[0].message.content
         if "<考勤>" in llm_output:
@@ -50,6 +52,7 @@ class LLMService:
                 {"role": "user", "content": user_query}
             ],
             extra_body=dict(chat_template_kwargs=dict(enable_thinking=False)),
+            extra_authorization_key=settings.POLISH_MODEL,
         )
         logger.debug(f"[POLISH QUERY COMPLETION] {completion.model_dump_json()}")
         polished_query = completion.choices[0].message.content
@@ -65,6 +68,7 @@ class LLMService:
             temperature=0.7,
             extra_body=extra_body,
             stream=True,
+            extra_authorization_key=settings.GENERATE_MODEL_KEY
         )
         output_think_prefix=enable_thinking
         output_think_suffix=False
@@ -127,7 +131,8 @@ class LLMService:
         response = await self.client.embeddings.create(
             model=settings.EMBEDDING_MODEL,
             input=text,
-            encoding_format="float"
+            encoding_format="float",
+            extra_authorization_key=settings.EMBEDDING_MODEL_KEY,
         )
         return response.data[0].embedding
     
