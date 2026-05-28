@@ -1,0 +1,103 @@
+{
+  "$defs": {
+    "FilterObject": {
+      "description": "存储用于WHERE语句的条件过滤信息",
+      "properties": {
+        "value": {
+          "description": "<用户问题>中提取的实体值。用于db模糊搜索",
+          "title": "Value",
+          "type": "string"
+        },
+        "operator": {
+          "$ref": "#/$defs/FilterOperator",
+          "default": null,
+          "description": "将`normalized_value`用于WHERE语句进行准确过滤的运算符"
+        }
+      },
+      "required": ["value"],
+      "title": "FilterObject",
+      "type": "object"
+    },
+    "FilterOperator": {
+      "description": "数据库WHERE语句运算符的枚举类。",
+      "enum": [
+        "=","<",">","<=",">=","IN"
+      ],
+      "title": "FilterOperator",
+      "type": "string"
+    },
+    "JoinObject": {
+      "description": "存储用于JOIN语句的信息",
+      "properties": {
+        "left": {
+          "description": "左表。一般是`main_table`",
+          "title": "Left",
+          "type": "string"
+        },
+        "right": {
+          "description": "右表，一般是关联的表",
+          "title": "Right",
+          "type": "string"
+        },
+        "on": {
+          "description": "两表ON的条件。必须遵循的格式: left.field=right.field",
+          "title": "On",
+          "type": "string"
+        }
+      },
+      "required": ["left","right","on"],
+      "title": "JoinObject",
+      "type": "object"
+    },
+    "ReductionOperator": {
+      "description": "数据库规约操作的枚举类。\nEXHAUSTION: 全部列出\nSUM: 对字段值算总和，即SQL的SUM()函数\nAVG: 对字段值算平均，即SQL的AVG()函数",
+      "enum": ["exhaustion","sum","avg"
+      ],
+      "title": "ReductionOperator",
+      "type": "string"
+    }
+  },
+  "properties": {
+    "main_table": {
+      "description": "主表。FROM语句后面的主表，需要自行判断哪张表作为主表最合适",
+      "title": "Main Table",
+      "type": "string"
+    },
+    "time": {
+      "description": "时间。不管值为“上周”、“4月份”等，只需要直接提取出来即可",
+      "title": "Time",
+      "type": "string"
+    },
+    "reduction": {
+      "$ref": "#/$defs/ReductionOperator",
+      "description": "数据库的规约操作。穷举: 直接列出全部值；还是求和: 对某字段求和，等规约操作"
+    },
+    "joins": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/JoinObject"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "用于JOIN语句的条件列表，可选。需要自行判断哪些表需要JOIN进来给出关键信息",
+      "title": "Joins"
+    },
+    "filters": {
+      "description": "用于WHERE语句的过滤条件列表",
+      "items": {
+        "$ref": "#/$defs/FilterObject"
+      },
+      "title": "Filters",
+      "type": "array"
+    }
+  },
+  "required": ["main_table","time","reduction","filters"],
+  "title": "AgentRecognition",
+  "type": "object"
+}
