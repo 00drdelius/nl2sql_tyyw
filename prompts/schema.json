@@ -20,9 +20,7 @@
     },
     "FilterOperator": {
       "description": "数据库WHERE语句运算符的枚举类。",
-      "enum": [
-        "=","<",">","<=",">=","IN"
-      ],
+      "enum": ["=","<",">","<=",">=","IN"],
       "title": "FilterOperator",
       "type": "string"
     },
@@ -51,26 +49,45 @@
     },
     "ReductionOperator": {
       "description": "数据库规约操作的枚举类。\nEXHAUSTION: 全部列出\nSUM: 对字段值算总和，即SQL的SUM()函数\nAVG: 对字段值算平均，即SQL的AVG()函数",
-      "enum": ["exhaustion","sum","avg"
-      ],
+      "enum": ["exhaustion","sum","avg"],
       "title": "ReductionOperator",
       "type": "string"
     }
   },
   "properties": {
+    "metric": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "需要统计的可量化的指标，可选。一般是“xx”数、额、量。如：考勤数，工单数，订单量。但规约操作为穷举时一般没有可量化指标，留空",
+      "title": "Metric"
+    },
+    "reduction": {
+      "$ref": "#/$defs/ReductionOperator",
+      "description": "数据库的规约操作。穷举: 直接列出全部值；还是求和: 对某字段求和，等规约操作"
+    },
     "main_table": {
       "description": "主表。FROM语句后面的主表，需要自行判断哪张表作为主表最合适",
       "title": "Main Table",
       "type": "string"
     },
     "time": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
       "description": "时间。不管值为“上周”、“4月份”等，只需要直接提取出来即可",
-      "title": "Time",
-      "type": "string"
-    },
-    "reduction": {
-      "$ref": "#/$defs/ReductionOperator",
-      "description": "数据库的规约操作。穷举: 直接列出全部值；还是求和: 对某字段求和，等规约操作"
+      "title": "Time"
     },
     "joins": {
       "anyOf": [
@@ -97,7 +114,7 @@
       "type": "array"
     }
   },
-  "required": ["main_table","time","reduction","filters"],
+  "required": ["reduction","main_table","time","filters"],
   "title": "AgentRecognition",
   "type": "object"
 }
