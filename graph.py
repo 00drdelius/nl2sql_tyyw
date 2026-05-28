@@ -11,7 +11,7 @@ from schemas.graph_state import ContextSchema, StateSchema, Intent
 
 
 async def recognize_intent(state:StateSchema, runtime:Runtime[ContextSchema]):
-    from prompts import INTENT_RECOGNITION
+    from prompts.general import INTENT_RECOGNITION
     llm_client = runtime.context['llm_client']
     user_query = state.query_request.query
     
@@ -33,6 +33,8 @@ async def recognize_intent(state:StateSchema, runtime:Runtime[ContextSchema]):
         raise ValueError(f"LLM意图识别错误. 原始输出: {llm_output}")
 
 
-async def recognize_named_entity(state:StateSchema, runtime:Runtime[ContextSchema]):
-    ...
-
+async def recognize_semantics(state:StateSchema, runtime:Runtime[ContextSchema]):
+    from prompts.semantics import RECOGNIZE_SEMANTICS_SYS
+    llm_client = runtime.context['llm_client']
+    user_query = state.query_request.query
+    
