@@ -1,0 +1,6 @@
+from .tables import (
+    ATT_TABLENAMES,
+    BPM_TABLENAMES,
+    ATTN_TABLE_SCHEMAS,
+    BPM_TABLE_SCHEMAS
+)
