@@ -94,15 +94,20 @@ class JoinObject(BaseModel):
 
 class AgentRecognition(BaseModel):
 
+    reduction: Annotated[
+        ReductionOperator, Field(description="数据库的规约操作。穷举: 直接列出全部值；还是求和: 对某字段求和，等规约操作")]
+    "reduciton db usually operate after SELECT,"
+
+    metric: Annotated[
+        Optional[str],
+        Field(default=None, description="需要统计的可量化的指标，可选。一般是“xx”数、额、量。如：考勤数，工单数，订单量。但规约操作为穷举时一般没有可量化指标，留空")]
+    "quantified metric. Optional."
+
     main_table: Annotated[Table_Str, Field(description="主表。FROM语句后面的主表，需要自行判断哪张表作为主表最合适")]
     "the FROM table, recognized by LLM"
 
     time: Annotated[Optional[str], Field(description="时间。不管值为“上周”、“4月份”等，只需要直接提取出来即可")]
     "time interval, could be properly recognized by LLM with function tool."
-
-    reduction: Annotated[
-        ReductionOperator, Field(description="数据库的规约操作。穷举: 直接列出全部值；还是求和: 对某字段求和，等规约操作")]
-    "reduciton db usually operate after SELECT,"
 
     joins: Annotated[
         Optional[List[JoinObject]], Field(default=None, description="用于JOIN语句的条件列表，可选。需要自行判断哪些表需要JOIN进来给出关键信息")]
