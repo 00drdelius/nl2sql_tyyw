@@ -13,13 +13,18 @@ class Settings(BaseSettings):
     
     # OpenAI API配置
     OPENAI_API_KEY_1: str = "sk-NO0AFfqpj-jlqpDx94RiiA"
-    OPENAI_API_BASE_1: str = "http://19.119.245.93:4000/v1"
+    OPENAI_API_BASE_1: str
     
     # 模型配置
-    FLASH_MODEL: str = "Qwen3-30B-A3B-Instruct-2507"
-    POLISH_MODEL: str = "Qwen3-32B"
-    GENERATE_MODEL: str = "Qwen3.5-397B-A17B"
-    EMBEDDING_MODEL: str = "Qwen3-Embedding-4B"
+    FLASH_MODEL: str
+    POLISH_MODEL: str
+    GENERATE_MODEL: str
+    EMBEDDING_MODEL: str
+
+    FLASH_MODEL_KEY: str 
+    POLISH_MODEL_KEY: str 
+    GENERATE_MODEL_KEY: str 
+    EMBEDDING_MODEL_KEY: str 
     
     # Milvus配置
     MILVUS_HOST: str = "localhost"
