@@ -8,9 +8,9 @@ LOG_LEVEL = settings.LOG_LEVEL
 TEST_MODE = settings.TEST_MODE
 
 if not TEST_MODE:
-    folder_ = "./prod/log/"
+    folder_ = "./log/prod/"
 else:
-    folder_ = "./test/log/"
+    folder_ = "./log/test/"
 os.makedirs(folder_, exist_ok=True)
 
 rotation_ = "5 MB"
