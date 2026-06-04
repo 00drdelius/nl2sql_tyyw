@@ -1,0 +1,42 @@
+include:
+  - path: ./langfuse/docker-compose.yml
+    env_file:
+      - ./.env # 全局变量
+      - ./langfuse/.env # 专用变量，覆盖全局变量同
+
+services:
+  mysql-db: # 工单db
+    image: ${MYSQL_IMAGE}
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -u root -p${MYSQL_ROOT_PASSWORD:-root}"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+    env_file:
+      - ./.env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}  # 保留默认值兜底
+    ports:
+      - 127.0.0.1:3308:3306
+    volumes:
+      - ./volumes/mysql:/var/lib/mysql
+
+  # postgres: # 考勤db
+  #   image: docker.io/postgres:${POSTGRES_VERSION:-17}
+  #   restart: always
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U postgres"]
+  #     interval: 3s
+  #     timeout: 3s
+  #     retries: 10
+  #   environment:
+  #     POSTGRES_USER: ${POSTGRES_USER:-postgres}
+  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres} # CHANGEME
+  #     POSTGRES_DB: ${POSTGRES_DB:-postgres}
+  #     TZ: UTC
+  #     PGTZ: UTC
+  #   ports:
+  #     - 127.0.0.1:5433:5432
+  #   volumes:
+  #     - ../volumes/langfuse_postgres_data:/var/lib/postgresql/data
