@@ -11,6 +11,7 @@ from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
 from rich import print as rprint
 
+from logg import logger
 
 @dataclass
 class ExecutorConfig:
@@ -89,6 +90,7 @@ class EncryptedSQLExecutor:
     ) -> requests.Response:
         """执行加密SQL请求"""
         print("########### authorization: ",authorization)
+        response=None
         payload = self._build_payload(sql, module)
         self.session.headers.update(
             {"Authorization": authorization})
@@ -97,8 +99,13 @@ class EncryptedSQLExecutor:
             data=payload,
             timeout=timeout or self.config.timeout
         )
-        response.raise_for_status()
-        return response.json()
+        try:
+            response.raise_for_status()
+            return response.json()
+        except Exception as exc:
+            if response:
+                logger.error(f"SQL Execution failed: {response.status_code} - {response.text}")
+            raise exc
     
     def execute_with_print(
         self, 
