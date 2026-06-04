@@ -1,20 +1,24 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
-from config import settings
+
 from api.endpoints import query, health
+from config import settings
+from db.database import DatabaseOperator
 from logg import logger
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """应用生命周期管理"""
-    # 启动时执行的初始化操作
     logger.info("FastAPI应用启动中...")
-    # 初始化服务（服务类在导入时已自动初始化）
+    db_operator = DatabaseOperator()
+    await db_operator.init_models()
+    app.state.db_operator = db_operator
     logger.info("服务初始化完成")
     yield
-    # 关闭时执行的清理操作
     logger.info("FastAPI应用正在关闭...")
+    await db_operator.dispose()
 
 
 # 创建FastAPI应用实例
