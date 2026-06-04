@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from typing import Any, AsyncIterator, Iterable
 
 from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker, create_async_engine
-from sqlmodel import SQLModel, select
+from sqlmodel import SQLModel, delete, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from config import settings
@@ -288,6 +288,18 @@ class DatabaseOperator:
             await session.delete(record)
             await session.commit()
             return True
+
+    async def delete_session(self, user_id: str, session_id: str) -> int:
+        """删除指定用户的一个会话窗口下的所有对话记录。返回被删除的记录数。"""
+        async with self.session() as session:
+            statement = (
+                delete(LLMConversationHistory)
+                .where(LLMConversationHistory.user_id == user_id)
+                .where(LLMConversationHistory.session_id == session_id)
+            )
+            result = await session.exec(statement)
+            await session.commit()
+            return result.rowcount
 
     async def dispose(self) -> None:
         """释放连接池。"""

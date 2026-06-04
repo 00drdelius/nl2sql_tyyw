@@ -81,6 +81,14 @@ class HealthResponse(BaseModel):
     database_connected: bool = False
 
 
+class DeleteSessionResponse(BaseModel):
+    """删除会话响应模型"""
+    success: bool = True
+    session_id: str
+    deleted_count: int = Field(..., description="被删除的对话记录数")
+    message: str = ""
+
+
 class ErrorResponse(BaseModel):
     """错误响应模型"""
     success: bool = False

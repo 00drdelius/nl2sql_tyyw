@@ -11,6 +11,7 @@ from api.schemas.query import (
     ChatMessage,
     ChunkResponse,
     ConversationQueryRequest,
+    DeleteSessionResponse,
     HistoryRecordResponse,
     QueryRequest,
     QueryResponse,
@@ -524,3 +525,32 @@ async def get_history_session_records(
     )
     ordered_records = sorted(records, key=lambda item: item.created_at)
     return [_serialize_history_record(record) for record in ordered_records]
+
+
+@router.post("/history/session/delete", response_model=DeleteSessionResponse)
+async def delete_history_session(
+    session_id: str = Body(..., embed=True, description="会话窗口ID"),
+    user_id: str = Body(..., embed=True, description="用户ID"),
+    db_operator: DatabaseOperator = Depends(get_db_operator),
+):
+    """删除某个用户在指定会话窗口下的所有对话记录。"""
+    if not user_id:
+        raise HTTPException(
+            status_code=400, detail="user_id不能为空", headers={"Content-Type": "application/json; charset=utf-8"})
+
+    if not session_id:
+        raise HTTPException(
+            status_code=400, detail="session_id不能为空", headers={"Content-Type": "application/json; charset=utf-8"})
+
+    deleted_count = await db_operator.delete_session(user_id=user_id, session_id=session_id)
+
+    if deleted_count == 0:
+        raise HTTPException(
+            status_code=404, detail="未找到该会话记录", headers={"Content-Type": "application/json; charset=utf-8"})
+
+    return DeleteSessionResponse(
+        success=True,
+        session_id=session_id,
+        deleted_count=deleted_count,
+        message=f"成功删除 {deleted_count} 条对话记录",
+    )
