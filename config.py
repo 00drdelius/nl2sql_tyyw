@@ -1,5 +1,7 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Optional
+from urllib.parse import quote_plus
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -30,16 +32,26 @@ class Settings(BaseSettings):
     MILVUS_HOST: str = "localhost"
     MILVUS_PORT: str = "19530"
     
-    # DashScope配置
-    DASHSCOPE_API_URL: str = "https://dashscope.aliyuncs.com/api/v1"
-    DASHSCOPE_API_KEY: str = "sk-27011a344d8546808f71d1b838f7aa7f"
-    
     # 数据库配置（原Flask应用中未实际使用DB_POOL）
     DB_HOST: str = "localhost"
-    DB_PORT: int = 3307
+    DB_PORT: int = 5432
     DB_NAME: str = "myapp"
     DB_USER: str = "myapp_user"
     DB_PASSWORD: str = "myapp_password"
+    DATABASE_URL: Optional[str] = None
+    DB_ECHO: bool = False
+
+    @property
+    def ASYNC_DATABASE_URL(self) -> str:
+        """优先使用完整 DSN，否则基于 PostgreSQL 配置拼装异步连接串。"""
+        if self.DATABASE_URL:
+            return self.DATABASE_URL
+
+        password = quote_plus(self.DB_PASSWORD)
+        return (
+            f"postgresql+asyncpg://{self.DB_USER}:{password}"
+            f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+        )
     
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
