@@ -103,8 +103,7 @@ class EncryptedSQLExecutor:
             response.raise_for_status()
             return response.json()
         except Exception as exc:
-            if response:
-                logger.error(f"SQL Execution failed: {response.status_code} - {response.text}")
+            logger.error(f"SQL Execution failed: {response.status_code} - {response.text}")
             raise exc
     
     def execute_with_print(
