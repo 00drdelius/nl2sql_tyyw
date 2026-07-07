@@ -30,7 +30,20 @@
 
 ## 1. 项目总览
 
-AI Query System 是一个面向运维场景的 Text-to-SQL 系统，让不懂 SQL 的业务人员能够用自然语言查询数据库。核心能力包括：
+### 业务背景
+
+本系统隶属于**统一运维项目**，为其提供自然语言转 SQL（Text-to-SQL）的智能查询服务。目前系统已接入统一运维项目下的**两大业务域数据库**：
+
+| 业务域 | 数据库类型 | 典型查询场景 |
+|--------|-----------|-------------|
+| 🏢 **考勤管理（Attendance）** | MySQL 8.0 | 人员出勤统计、异常考勤追踪、排班查询 |
+| 📋 **工单流程（BPM）** | MySQL 5.7 | 工单流转状态、故障类型统计、流程归档查询 |
+
+> **项目对接人**：林建峰（二机楼）
+
+### 系统简介
+
+AI Query System 让不懂 SQL 的业务人员能够用自然语言查询数据库。核心能力包括：
 
 - **双业务域支持**：覆盖**考勤管理**和**工单流程（BPM）**两大运维场景
 - **意图识别**：自动判断用户问题属于考勤还是工单域
@@ -456,7 +469,7 @@ python scripts/build_collection_bpm.py
 |------|------|------|------|
 | `query` | string | ✅ | 用户的自然语言查询 |
 | `user_id` | string | ✅ | 用户标识 |
-| `authorization` | string | ✅ | 后端 SQL 执行引擎认证令牌 |
+| `authorization` | string | ✅ | 后端 SQL 执行引擎认证令牌（Bearer Token）。**背景说明**：统一运维项目的业务数据库无法由本服务直连，生成的 SQL 需通过 [`sql_executor.py`](sql_executor.py) 加密后发给项目方提供的 `/backend_api/aiops/sql-executor/execute` 接口代为执行并返回结果。此 token 是登录**统一运维平台**后获取的鉴权 Bearer API-Key，若需测试，请先登录统一运维平台，通过浏览器开发者工具抓取 HTTP 请求中的 `Authorization` 头获取。 |
 | `session_id` | string | ❌ | 会话标识，不传则自动生成 UUID |
 
 **错误响应**（同步，HTTP 400）:
@@ -508,7 +521,7 @@ python scripts/build_collection_bpm.py
 |------|------|------|------|
 | `messages` | ChatMessage[] | ✅ | 完整历史对话数组（不含 system prompt） |
 | `user_id` | string | ✅ | 用户标识 |
-| `authorization` | string | ✅ | 后端 SQL 执行引擎认证令牌 |
+| `authorization` | string | ✅ | 后端 SQL 执行引擎认证令牌（Bearer Token），来源说明同上（从统一运维平台登录后获取）。 |
 | `session_id` | string | ✅ | 会话标识 |
 
 **ChatMessage 结构**:
