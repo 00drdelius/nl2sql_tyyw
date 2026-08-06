@@ -1,41 +1,4 @@
 ATTENDENCE_CACHE_DIALECTS="""\
-# 查询特定时间用户异常考勤的条目
-```sql
-SELECT 
-	"用户名称", "单位名称", "排班名称", "值班日期", "考勤状态", "是否申诉", "是否请假" 
-FROM imoc_attendance_all 
-WHERE "考勤状态" != '正常' AND "值班日期" BETWEEN <dateime1> AND <datetime2>;
-```
-
-# 统计特定时间考勤异常用户数，根据用户提问添加关键字过滤
-```sql
-SELECT 
-	"排班名称", 
-	count(1) AS "总人数", 
-	SUM(CASE WHEN "考勤状态" = '迟到' THEN 1 ELSE 0 END ) AS "迟到数",
-	SUM(CASE WHEN "考勤状态" = '未签退' THEN 1 ELSE 0 END ) AS "未签退数",
-	SUM(CASE WHEN "考勤状态" = '早退' THEN 1 ELSE 0 END ) AS "早退数",
-	SUM(CASE WHEN "考勤状态" = '缺勤' THEN 1 ELSE 0 END ) AS "缺勤数" 
-FROM imoc_attendance_all 
-WHERE "考勤状态" != '正常' AND "值班日期" BETWEEN <dateime1> AND <dateime2> AND "排班名称" LIKE '%%'
-GROUP BY "排班名称";
-```
-
-# 统计特定时间段内考勤用户考勤状态数量，根据用户提问替换时间段，根据用户提问添加关键字过滤
-```sql
-SELECT 
-	"值班日期", 
-	count(1) AS "总人数", 
-	SUM(CASE WHEN "考勤状态" = '正常' THEN 1 ELSE 0 END ) AS "正常数",
-	SUM(CASE WHEN "考勤状态" = '迟到' THEN 1 ELSE 0 END ) AS "迟到数",
-	SUM(CASE WHEN "考勤状态" = '未签退' THEN 1 ELSE 0 END ) AS "未签退数",
-	SUM(CASE WHEN "考勤状态" = '早退' THEN 1 ELSE 0 END ) AS "早退数",
-	SUM(CASE WHEN "考勤状态" = '缺勤' THEN 1 ELSE 0 END ) AS "缺勤数"
-FROM imoc_attendance_all 
-WHERE "值班日期" BETWEEN <dateime1> AND <dateime2>
-	AND "排班名称" LIKE '%%'
-GROUP BY "值班日期" ;
-```
 """
 
 BPM_CACHE_DIALECT="""\

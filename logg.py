@@ -13,7 +13,7 @@ else:
     folder_ = "./log/test/"
 os.makedirs(folder_, exist_ok=True)
 
-rotation_ = "5 MB"
+rotation_ = "00:00"
 retention_ = "90 days"
 encoding_ = "utf-8"
 backtrace_ = True

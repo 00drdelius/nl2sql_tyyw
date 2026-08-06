@@ -6,8 +6,8 @@ from datetime import datetime
 
 current_time = datetime.now().strftime("%Y%m%d-%H%M")
 user_id="Delius"
-authorization='Bearer ef2768d3955d554582159d4c8319ff86e196f7255df64f8696959d9c0427dcbc'
-current_query='统计统一运维上月各项异常考勤数量'
+authorization='Bearer 8873cfd23169c73b7fbac78480006627d1fe3945c13516a179725e22b2ac28ec'
+current_query='自然资源局这个月有多少工单'
 session_id=f"session-test-{current_time}"
 
 query_payload={

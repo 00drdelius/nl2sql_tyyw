@@ -7,6 +7,7 @@ import pandas as pd
 
 attendance_tables_file = Path(__file__).parent / "考勤数据表定义.md"
 bpm_tables_file = Path(__file__).parent / "工单流程数据表定义.md"
+alert_tables_file = Path(__file__).parent / "告警数据表定义.md"
 
 table_block_matcher = re.compile(
     r"^#\s+\d+\.\s+(?P<table_name>\w+)\s+\[(?P<table_comment>.+?)\]\n(?P<body>.*?)(?=^<br>\s*$|\Z)",
@@ -132,21 +133,29 @@ with attendance_tables_file.open("r", encoding="utf-8") as f:
 with bpm_tables_file.open("r", encoding="utf-8") as f:
     BPM_RAW = f.read()
 
+with alert_tables_file.open("r", encoding="utf-8") as f:
+    ALERT_RAW = f.read()
+
 ATTDN_TABLENAMES = table_name_matcher.findall(ATTDN_RAW)
 BPM_TABLENAMES = table_name_matcher.findall(BPM_RAW)
+ALERT_TABLENAMES = table_name_matcher.findall(ALERT_RAW)
 
 splitter = "<br>"
 ATTDN_TABLE_SCHEMAS = [i.strip() for i in ATTDN_RAW.split(splitter)]
 BPM_TABLE_SCHEMAS = [i.strip() for i in BPM_RAW.split(splitter)]
+ALERT_TABLE_SCHEMAS = [i.strip() for i in ALERT_RAW.split(splitter)]
 
 ATTDN_SCHEMA_RECORDS = parse_markdown_schema_records(ATTDN_RAW)
 BPM_SCHEMA_RECORDS = parse_markdown_schema_records(BPM_RAW)
+ALERT_SCHEMA_RECORDS = parse_markdown_schema_records(ALERT_RAW)
 
 ATTDN_SCHEMA_DF_MAP = build_schema_dataframe_map(ATTDN_SCHEMA_RECORDS)
 BPM_SCHEMA_DF_MAP = build_schema_dataframe_map(BPM_SCHEMA_RECORDS)
+ALERT_SCHEMA_DF_MAP = build_schema_dataframe_map(ALERT_SCHEMA_RECORDS)
 
 ATTDN_SCHEMA_DF = build_schema_dataframe(ATTDN_SCHEMA_RECORDS)
 BPM_SCHEMA_DF = build_schema_dataframe(BPM_SCHEMA_RECORDS)
+ALERT_SCHEMA_DF = build_schema_dataframe(ALERT_SCHEMA_RECORDS)
 
 
 if __name__ == '__main__':

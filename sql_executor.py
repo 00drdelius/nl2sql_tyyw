@@ -6,6 +6,7 @@ import time
 from typing import Optional, Dict, Any
 from dataclasses import dataclass, field
 
+import urllib3
 import requests
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
@@ -13,10 +14,12 @@ from rich import print as rprint
 
 from logg import logger
 
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 @dataclass
 class ExecutorConfig:
     """执行器配置项"""
-    official_base_url: str = "http://19.112.71.86/backend_api/aiops/sql-executor/execute"
+    official_base_url: str = "https://19.112.71.86/backend_api/aiops/sql-executor/execute"
     test_base_url: str = "http://172.29.8.130/backend_api/aiops/sql-executor/execute"
     aes_key: bytes = b'abcdef029384728fc2949283aae0d837'
     aes_iv: bytes = b'0123456789abcdef'
@@ -97,7 +100,8 @@ class EncryptedSQLExecutor:
         response = self.session.post(
             self.config.base_url,
             data=payload,
-            timeout=timeout or self.config.timeout
+            timeout=timeout or self.config.timeout,
+            verify=False
         )
         try:
             response.raise_for_status()

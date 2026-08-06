@@ -81,10 +81,14 @@ class SQLService:
             ATTDN_TABLENAMES,
             BPM_SCHEMA_DF_MAP,
             BPM_TABLENAMES,
+            ALERT_SCHEMA_DF_MAP,
+            ALERT_TABLENAMES,
         )
 
         if intent in ("attendance", "attdance"):
             return ATTDN_TABLENAMES, ATTDN_SCHEMA_DF_MAP
+        elif intent == "alert":
+            return ALERT_TABLENAMES, ALERT_SCHEMA_DF_MAP
         return BPM_TABLENAMES, BPM_SCHEMA_DF_MAP
 
     def _get_table_search_meta(self, table: str, intent: str) -> TableSearchMeta:
@@ -272,7 +276,7 @@ class SQLService:
                 userid_index = column_names.index("userid")
                 username_index = column_names.index("user_name")
                 
-                return {row[userid_index]: row[username_index] for row in rows}
+                return {str(row[userid_index]): row[username_index] for row in rows}
             
             try:
                 logger.debug(f"###### SQL原始字符串: [{sql.__repr__()}]")
@@ -312,7 +316,7 @@ class SQLService:
                 userid_to_username = None
                 if "userid" in column_names:
                     userid_index = column_names.index("userid")
-                    userids = [row[userid_index] for row in rows]
+                    userids = [str(row[userid_index]) for row in rows]
                     userid_to_username = get_username_by_userid(userids=userids)
                 
                 return {
@@ -338,9 +342,19 @@ class SQLService:
                 #     'userid_to_username': None
                 # }
     
+    # 模糊查询白名单：只查核心表，避免无权限/无关表的慢查询
+    _FUZZY_TABLE_ALLOWLIST = {
+        "attendance": {"imoc_class_duty_user", "imoc_checkin_user", "imoc_class_user", "imoc_class_duty", "imoc_class_project"},
+        "alert": {"view_alert_all", "view_alert_organization", "view_alert_business"},
+        "bpm": None,  # None = use all tables
+    }
+
     async def fuzzy_query(self, entity: str, authorization: str, intent: str) -> List[str]:
         """模糊查询数据库中对应值的字段名"""
         tables, _ = self._get_schema_resources(intent)
+        allowlist = self._FUZZY_TABLE_ALLOWLIST.get(intent)
+        if allowlist is not None:
+            tables = [t for t in tables if t in allowlist]
         entity_lower = self._normalize_text(entity).lower()
         if not entity_lower:
             return []

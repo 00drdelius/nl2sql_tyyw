@@ -45,6 +45,8 @@ from openai.resources.chat.completions.completions import validate_response_form
 MODELNAME_MAPPER={
     "Qwen3-30B-A3B-Instruct-2507": "qwen3-30b-a3b",
     "Qwen3.5-397B-A17B": "qwen3-5-397b-a17b",
+    "Qwen3.6-27B": "qwen3-6-27b",
+    "Qwen3.6-35B-A3B": "Qwen3.6-35B-A3B",
 }
 
 

@@ -1,0 +1,258 @@
+nohup: ignoring input
+INFO:     Started server process [26895]
+INFO:     Waiting for application startup.
+[32m2026-07-14 10:35:02[0m | [1mINFO    [0m | [36mmain.py[0m:[33m14[0m@[36mlifespan[0m - [1mFastAPI应用启动中...[0m
+[32m2026-07-14 10:35:02[0m | [1mINFO    [0m | [36mmain.py[0m:[33m18[0m@[36mlifespan[0m - [1m服务初始化完成[0m
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:10000 (Press CTRL+C to quit)
+INFO:     19.112.71.57:57120 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43720 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60664 - "POST /api/query HTTP/1.1" 200 OK
+[32m2026-07-14 11:06:45[0m | [34m[1mDEBUG   [0m | [36mllm_service.py[0m:[33m73[0m@[36mrecognize_intent[0m - [34m[1m[FRONTEND MESSAGES]
+[
+  {
+    "role": "user",
+    "content": "test"
+  }
+][0m
+[32m2026-07-14 11:06:46[0m | [1mINFO    [0m | [36mquery.py[0m:[33m351[0m@[36mgenerate_stream[0m - [1m意图识别：attendance[0m
+[32m2026-07-14 11:06:48[0m | [34m[1mDEBUG   [0m | [36mllm_service.py[0m:[33m133[0m@[36mparse_semantics[0m - [34m[1m[NER OUTPUT] ```json
+{
+  "实体": []
+}
+```[0m
+[32m2026-07-14 11:06:48[0m | [1mINFO    [0m | [36mquery.py[0m:[33m392[0m@[36mgenerate_stream[0m - [1m语义解析结果：test[0m
+[32m2026-07-14 11:06:49[0m | [34m[1mDEBUG   [0m | [36mllm_service.py[0m:[33m257[0m@[36mpolish_query[0m - [34m[1m[POLISH QUERY COMPLETION] {"id":"chatcmpl-8b9c96f6dbb5381a","choices":[{"finish_reason":"stop","index":0,"logprobs":null,"message":{"content":"<润色后>\n请查询在2026年7月14日当天，所有在“重保项目”中排班并打卡的人员信息，包括他们的姓名、所属单位、参与的项目名称、排班规则名称、具体班次名称、值班日期、规定的值班时间范围、实际打卡时间、考勤状态，以及该记录是否已发起申诉或请假。同时，请筛选出考勤状态为“迟到”、“早退”、“未签退”或“缺勤”的异常记录，并显示这些人员的打卡位置（经度和纬度）以及是否为手动签到。\n</润色后>","refusal":null,"role":"assistant","annotations":null,"audio":null,"function_call":null,"tool_calls":null,"provider_specific_fields":{"reasoning":null,"refusal":null}},"provider_specific_fields":{"stop_reason":null,"token_ids":null}}],"created":1783998408,"model":"Qwen3-30B-A3B-Instruct-2507","object":"chat.completion","service_tier":null,"system_fingerprint":null,"usage":{"completion_tokens":138,"prompt_tokens":2285,"total_tokens":2423,"completion_tokens_details":null,"prompt_tokens_details":null}}[0m
+[32m2026-07-14 11:06:49[0m | [1mINFO    [0m | [36mquery.py[0m:[33m130[0m@[36m_finalize_query[0m - [1m润色后的查询: 
+请查询在2026年7月14日当天，所有在“重保项目”中排班并打卡的人员信息，包括他们的姓名、所属单位、参与的项目名称、排班规则名称、具体班次名称、值班日期、规定的值班时间范围、实际打卡时间、考勤状态，以及该记录是否已发起申诉或请假。同时，请筛选出考勤状态为“迟到”、“早退”、“未签退”或“缺勤”的异常记录，并显示这些人员的打卡位置（经度和纬度）以及是否为手动签到。
+[0m
+[32m2026-07-14 11:06:50[0m | [1mINFO    [0m | [36mquery.py[0m:[33m136[0m@[36m_finalize_query[0m - [1m完成生成查询向量[0m
+INFO:     19.113.71.104:50614 - "GET / HTTP/1.1" 404 Not Found
+INFO:     19.113.71.104:50614 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:35888 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41200 - "GET /health HTTP/1.1" 200 OK
+INFO:     19.112.71.57:48014 - "POST /api/chat/query HTTP/1.1" 200 OK
+[32m2026-07-14 11:18:20[0m | [34m[1mDEBUG   [0m | [36mllm_service.py[0m:[33m73[0m@[36mrecognize_intent[0m - [34m[1m[FRONTEND MESSAGES]
+[
+  {
+    "role": "user",
+    "content": "列出今天考勤异常的用户"
+  }
+][0m
+[32m2026-07-14 11:18:21[0m | [1mINFO    [0m | [36mquery.py[0m:[33m351[0m@[36mgenerate_stream[0m - [1m意图识别：attendance[0m
+[32m2026-07-14 11:18:23[0m | [34m[1mDEBUG   [0m | [36mllm_service.py[0m:[33m133[0m@[36mparse_semantics[0m - [34m[1m[NER OUTPUT] ```json
+{
+  "实体": []
+}
+```[0m
+[32m2026-07-14 11:18:23[0m | [1mINFO    [0m | [36mquery.py[0m:[33m392[0m@[36mgenerate_stream[0m - [1m语义解析结果：列出今天考勤异常的用户[0m
+[32m2026-07-14 11:18:24[0m | [34m[1mDEBUG   [0m | [36mllm_service.py[0m:[33m257[0m@[36mpolish_query[0m - [34m[1m[POLISH QUERY COMPLETION] {"id":"chatcmpl-b70158e503799c9e","choices":[{"finish_reason":"stop","index":0,"logprobs":null,"message":{"content":"<润色后>\n请列出在今天（2026年7月14日）考勤状态为异常的用户，包括他们的姓名、所属单位、所属项目、排班名称、班次名称、值班日期、值班时间、实际打卡时间以及具体的考勤异常类型（如迟到、早退、未签退、缺勤等），并注明该记录是否已发起申诉或请假。\n</润色后>","refusal":null,"role":"assistant","annotations":null,"audio":null,"function_call":null,"tool_calls":null,"provider_specific_fields":{"reasoning":null,"refusal":null}},"provider_specific_fields":{"stop_reason":null,"token_ids":null}}],"created":1783999103,"model":"Qwen3-30B-A3B-Instruct-2507","object":"chat.completion","service_tier":null,"system_fingerprint":null,"usage":{"completion_tokens":94,"prompt_tokens":2291,"total_tokens":2385,"completion_tokens_details":null,"prompt_tokens_details":null}}[0m
+[32m2026-07-14 11:18:24[0m | [1mINFO    [0m | [36mquery.py[0m:[33m130[0m@[36m_finalize_query[0m - [1m润色后的查询: 
+请列出在今天（2026年7月14日）考勤状态为异常的用户，包括他们的姓名、所属单位、所属项目、排班名称、班次名称、值班日期、值班时间、实际打卡时间以及具体的考勤异常类型（如迟到、早退、未签退、缺勤等），并注明该记录是否已发起申诉或请假。
+[0m
+[32m2026-07-14 11:18:24[0m | [1mINFO    [0m | [36mquery.py[0m:[33m136[0m@[36m_finalize_query[0m - [1m完成生成查询向量[0m
+[32m2026-07-14 11:18:45[0m | [34m[1mDEBUG   [0m | [36mllm_service.py[0m:[33m312[0m@[36mask_llm[0m - [34m[1m[GENERATE DIALOGUE][0m
+[32m2026-07-14 11:18:45[0m | [34m[1mDEBUG   [0m | [36mllm_service.py[0m:[33m314[0m@[36mask_llm[0m - [34m[1m[USER]
+
+请列出在今天（2026年7月14日）考勤状态为异常的用户，包括他们的姓名、所属单位、所属项目、排班名称、班次名称、值班日期、值班时间、实际打卡时间以及具体的考勤异常类型（如迟到、早退、未签退、缺勤等），并注明该记录是否已发起申诉或请假。
+
+
+[0m
+[32m2026-07-14 11:18:45[0m | [1mINFO    [0m | [36mllm_service.py[0m:[33m315[0m@[36mask_llm[0m - [1m[ASSISTANT]
+<think>
+用户问题是查询今天（2026 年 7 月 14 日）考勤状态为异常的用户详细信息。
+
+让我分析：
+1. 今日时间是 2026-07-14
+2. 用户需要查询考勤异常的用户信息，包括：姓名、所属单位、所属项目、排班名称、班次名称、值班日期、值班时间、实际打卡时间、考勤异常类型、是否申诉、是否请假
+
+查看 SQL 缓存模板：
+- 模板 1：查询特定时间用户异常考勤的条目，字段包括"用户名称", "单位名称", "排班名称", "值班日期", "考勤状态", "是否申诉", "是否请假"
+- 模板 2：统计特定时间考勤异常用户数
+- 模板 3：统计特定时间段内考勤用户考勤状态数量
+- 模板 4：工单记录查询
+- 模板 5：工单数量统计
+
+模板 1 最接近用户需求，但需要调整：
+1. 时间范围：今天是 2026-07-14，所以 BETWEEN '2026-07-14' AND '2026-07-14'
+2. 需要添加更多字段：用户需要"所属项目"、"班次名称"、"值班时间"、"打卡时间"
+3. 考勤状态需要过滤异常状态（!= '正常'）
+
+查看表结构 imoc_attendance_all 有以下字段：
+- 用户名称
+- 单位名称
+- 项目名称
+- 排班名称
+- 班次名称
+- 值班日期
+- 值班时间
+- 打卡时间
+- 考勤状态
+- 是否申诉
+- 是否请假
+
+模板 1 缺少"项目名称"、"班次名称"、"值班时间"、"打卡时间"这些字段，需要补充。
+
+这属于命中情况，因为模板 1 是查询异常考勤条目的，只需要修改时间范围和添加缺失的字段即可。
+
+让我生成 SQL：
+</think>
+
+
+<sql>
+SELECT 
+	"用户名称", "单位名称", "项目名称", "排班名称", "班次名称", "值班日期", "值班时间", "打卡时间", "考勤状态", "是否申诉", "是否请假" 
+FROM imoc_attendance_all 
+WHERE "考勤状态" != '正常' AND "值班日期" BETWEEN '2026-07-14' AND '2026-07-14';
+</sql>
+
+[0m
+[32m2026-07-14 11:18:45[0m | [1mINFO    [0m | [36mllm_service.py[0m:[33m316[0m@[36mask_llm[0m - [1m[USAGE] reasoning_tokens:438 completion_tokens:543[0m
+[32m2026-07-14 11:18:45[0m | [34m[1mDEBUG   [0m | [36msql_service.py[0m:[33m278[0m@[36m_execute_sql_sync[0m - [34m[1m###### SQL原始字符串: ['\nSELECT \n\t"用户名称", "单位名称", "项目名称", "排班名称", "班次名称", "值班日期", "值班时间", "打卡时间", "考勤状态", "是否申诉", "是否请假" \nFROM imoc_attendance_all \nWHERE "考勤状态" != \'正常\' AND "值班日期" BETWEEN \'2026-07-14\' AND \'2026-07-14\';\n'][0m
+[32m2026-07-14 11:18:48[0m | [1mINFO    [0m | [36mquery.py[0m:[33m85[0m@[36mgenerate_and_query_db[0m - [1m查询成功: 返回 11 列; 9 行[0m
+########### authorization:  Bearer 9d66e7d02c31eb54fa28e3e23808ab94c33aa616e6db6cfbeccc7d000fafe826
+INFO:     19.112.71.57:44056 - "POST /api/chat/query HTTP/1.1" 200 OK
+[32m2026-07-14 11:45:27[0m | [34m[1mDEBUG   [0m | [36mllm_service.py[0m:[33m73[0m@[36mrecognize_intent[0m - [34m[1m[FRONTEND MESSAGES]
+[
+  {
+    "role": "user",
+    "content": "列出今天考勤异常的用户列表"
+  }
+][0m
+[32m2026-07-14 11:45:27[0m | [1mINFO    [0m | [36mquery.py[0m:[33m351[0m@[36mgenerate_stream[0m - [1m意图识别：attendance[0m
+[32m2026-07-14 11:45:29[0m | [34m[1mDEBUG   [0m | [36mllm_service.py[0m:[33m133[0m@[36mparse_semantics[0m - [34m[1m[NER OUTPUT] ```json
+{"实体": []}
+```[0m
+[32m2026-07-14 11:45:29[0m | [1mINFO    [0m | [36mquery.py[0m:[33m392[0m@[36mgenerate_stream[0m - [1m语义解析结果：列出今天考勤异常的用户列表[0m
+[32m2026-07-14 11:45:31[0m | [34m[1mDEBUG   [0m | [36mllm_service.py[0m:[33m257[0m@[36mpolish_query[0m - [34m[1m[POLISH QUERY COMPLETION] {"id":"chatcmpl-92f9a1bb54d97afc","choices":[{"finish_reason":"stop","index":0,"logprobs":null,"message":{"content":"<润色后>\n请列出在今天（2026年7月14日）考勤状态为异常的用户列表，包括用户的姓名、所属单位名称、所属项目名称、排班名称、班次名称、值班日期、值班时间范围、实际打卡时间以及具体的考勤异常类型（如迟到、早退、未签退、缺勤等），并注明该记录是否已发起申诉或请假。\n</润色后>","refusal":null,"role":"assistant","annotations":null,"audio":null,"function_call":null,"tool_calls":null,"provider_specific_fields":{"reasoning":null,"refusal":null}},"provider_specific_fields":{"stop_reason":null,"token_ids":null}}],"created":1784000729,"model":"Qwen3-30B-A3B-Instruct-2507","object":"chat.completion","service_tier":null,"system_fingerprint":null,"usage":{"completion_tokens":98,"prompt_tokens":2292,"total_tokens":2390,"completion_tokens_details":null,"prompt_tokens_details":null}}[0m
+[32m2026-07-14 11:45:31[0m | [1mINFO    [0m | [36mquery.py[0m:[33m130[0m@[36m_finalize_query[0m - [1m润色后的查询: 
+请列出在今天（2026年7月14日）考勤状态为异常的用户列表，包括用户的姓名、所属单位名称、所属项目名称、排班名称、班次名称、值班日期、值班时间范围、实际打卡时间以及具体的考勤异常类型（如迟到、早退、未签退、缺勤等），并注明该记录是否已发起申诉或请假。
+[0m
+[32m2026-07-14 11:45:31[0m | [1mINFO    [0m | [36mquery.py[0m:[33m136[0m@[36m_finalize_query[0m - [1m完成生成查询向量[0m
+[32m2026-07-14 11:45:52[0m | [34m[1mDEBUG   [0m | [36mllm_service.py[0m:[33m312[0m@[36mask_llm[0m - [34m[1m[GENERATE DIALOGUE][0m
+[32m2026-07-14 11:45:52[0m | [34m[1mDEBUG   [0m | [36mllm_service.py[0m:[33m314[0m@[36mask_llm[0m - [34m[1m[USER]
+
+请列出在今天（2026年7月14日）考勤状态为异常的用户列表，包括用户的姓名、所属单位名称、所属项目名称、排班名称、班次名称、值班日期、值班时间范围、实际打卡时间以及具体的考勤异常类型（如迟到、早退、未签退、缺勤等），并注明该记录是否已发起申诉或请假。
+
+
+[0m
+[32m2026-07-14 11:45:52[0m | [1mINFO    [0m | [36mllm_service.py[0m:[33m315[0m@[36mask_llm[0m - [1m[ASSISTANT]
+<think>
+用户问题要求查询今天（2026 年 7 月 14 日）考勤状态为异常的用户列表，需要包含多个字段信息。
+
+让我分析：
+1. 今日时间是 2026-07-14
+2. 需要查询考勤状态异常的用户列表
+3. 需要的字段包括：用户姓名、单位名称、项目名称、排班名称、班次名称、值班日期、值班时间、打卡时间、考勤状态、是否申诉、是否请假
+
+查看 SQL 缓存模板：
+- 模板 1：查询特定时间用户异常考勤的条目，包含用户名称、单位名称、排班名称、值班日期、考勤状态、是否申诉、是否请假
+- 模板 2：统计特定时间考勤异常用户数
+- 模板 3：统计特定时间段内考勤用户考勤状态数量
+- 模板 4：工单记录查询
+- 模板 5：工单数量统计
+
+模板 1 比较接近用户需求，但需要检查：
+1. 模板 1 包含的字段：用户名称、单位名称、排班名称、值班日期、考勤状态、是否申诉、是否请假
+2. 用户需要的字段：用户姓名、所属单位名称、所属项目名称、排班名称、班次名称、值班日期、值班时间范围、实际打卡时间、考勤异常类型、是否申诉、是否请假
+
+
+3. 模板 1 缺少：项目名称、班次名称、值班时间、打卡时间
+
+根据表结构，imoc_attendance_all 视图包含这些字段：用户名称、单位名称、项目名称、排班名称、班次名称、值班日期、值班时间、打卡时间、考勤状态、是否申诉、是否请假。模板 1 可以基于这个视图进行修改，补充缺失的字段。
+
+由于模板 1 的框架已经匹配用户需求，我可以在其基础上扩展 SELECT 子句，添加项目名称、班次名称、值班时间和打卡时间这些字段。时间条件需要设定为 2026-07-14，同时保持考勤状态异常的过滤条件。
+</think>
+
+
+<sql>
+SELECT 
+	"用户名称", "单位名称", "项目名称", "排班名称", "班次名称", "值班日期", "值班时间", "打卡时间", "考勤状态", "是否申诉", "是否请假" 
+FROM imoc_attendance_all 
+WHERE "考勤状态" != '正常' AND "值班日期" BETWEEN '2026-07-14' AND '2026-07-14';
+</sql>
+
+[0m
+[32m2026-07-14 11:45:52[0m | [1mINFO    [0m | [36mllm_service.py[0m:[33m316[0m@[36mask_llm[0m - [1m[USAGE] reasoning_tokens:434 completion_tokens:539[0m
+[32m2026-07-14 11:45:52[0m | [34m[1mDEBUG   [0m | [36msql_service.py[0m:[33m278[0m@[36m_execute_sql_sync[0m - [34m[1m###### SQL原始字符串: ['\nSELECT \n\t"用户名称", "单位名称", "项目名称", "排班名称", "班次名称", "值班日期", "值班时间", "打卡时间", "考勤状态", "是否申诉", "是否请假" \nFROM imoc_attendance_all \nWHERE "考勤状态" != \'正常\' AND "值班日期" BETWEEN \'2026-07-14\' AND \'2026-07-14\';\n'][0m
+[32m2026-07-14 11:45:54[0m | [1mINFO    [0m | [36mquery.py[0m:[33m85[0m@[36mgenerate_and_query_db[0m - [1m查询成功: 返回 11 列; 8 行[0m
+########### authorization:  Bearer 9ee370f23c551b508909ea16ad53a7d61ed9bbecbc06dfc2835bfbc99bf91da4
+INFO:     19.112.71.57:45984 - "POST /api/chat/query HTTP/1.1" 200 OK
+[32m2026-07-14 11:48:10[0m | [34m[1mDEBUG   [0m | [36mllm_service.py[0m:[33m73[0m@[36mrecognize_intent[0m - [34m[1m[FRONTEND MESSAGES]
+[
+  {
+    "role": "user",
+    "content": "列出今天考勤异常的用户列表"
+  },
+  {
+    "role": "assistant",
+    "content": "查询已完成。\n\n| 用户名称 | 单位名称 | 项目名称 | 排班名称 | 班次名称 | 值班日期 | 值班时间 | 打卡时间 | 考勤状态 | 是否申诉 | 是否请假 |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| 杜树威 | 基础保障综合类 |  | 正常班次-中山市公安局政务信息化项目运维项目 | 正常班 | 2026-07-14 | 08:30,17:30 | 08:44, | 迟到 | 否 | 否 |\n| 肖伟聪 | 无线数字集群 |  | 正常班次-中山市公安局政务信息化项目运维项目 | 正常班 | 2026-07-14 | 08:30,17:30 | 08:31, | 迟到 | 否 | 否 |\n| 黄培彬 | 统一运维 |  | 生态统一运维项目 | 正常班 | 2026-07-14 | 08:30,17:30 | 08:31, | 迟到 | 否 | 否 |\n| 李勇明 | 统一运维 |  | 生态统一运维项目 | 正常班 | 2026-07-14 | 08:30,17:30 | 08:32, | 迟到 | 否 | 否 |\n| 苏育权 | 市监局2024-2027年度运维服务项目 | 中山市市场监督管理局政务信息化项目2024-2027年度运维服务项目 | 中山市市场监督管理局2024-2027年度运维服务项目排班 | 正常班 | 2026-07-14 | 08:30,17:30 |  | 迟到 | 否 | 否 |\n| 何春谦 | 七大队 |  | 中山市公安局政务信息化项目2024-2027年度运维项目(安防视频卡口类专项)项目 | 视频安防专项-监管子项-正常(8：30-17：30) | 2026-07-14 | 08:30,17:30 |  | 迟到 | 否 | 否 |\n| 杨应宝 | 政务外网 | 采购包1(城域骨干网服务) | 电子政务外网-包1(移动)-驻点人员排班 | 政务外网移动-白班 | 2026-07-14 | 08:30,17:30 | 08:32, | 迟到 | 否 | 否 |\n| 黄兴裕 | 云平台第一资源池 |  | 中山市电子政务云服务平台第一资源池 | 一云-D班 | 2026-07-14 | 08:30,17:30 | 08:31, | 迟到 | 否 | 否 |"
+  },
+  {
+    "role": "user",
+    "content": "查出昨天考勤异常的用户列表"
+  }
+][0m
+[32m2026-07-14 11:48:11[0m | [1mINFO    [0m | [36mquery.py[0m:[33m351[0m@[36mgenerate_stream[0m - [1m意图识别：attendance[0m
+[32m2026-07-14 11:48:13[0m | [34m[1mDEBUG   [0m | [36mllm_service.py[0m:[33m133[0m@[36mparse_semantics[0m - [34m[1m[NER OUTPUT] ```json
+{
+  "实体": []
+}
+```[0m
+[32m2026-07-14 11:48:13[0m | [1mINFO    [0m | [36mquery.py[0m:[33m392[0m@[36mgenerate_stream[0m - [1m语义解析结果：查出昨天考勤异常的用户列表[0m
+[32m2026-07-14 11:48:14[0m | [34m[1mDEBUG   [0m | [36mllm_service.py[0m:[33m257[0m@[36mpolish_query[0m - [34m[1m[POLISH QUERY COMPLETION] {"id":"chatcmpl-9ea575ff5cf3a251","choices":[{"finish_reason":"stop","index":0,"logprobs":null,"message":{"content":"<润色后>\n请列出昨天（2026年7月13日）所有考勤状态为“迟到”、“早退”、“未签退”、“缺勤”等异常状态的用户列表，包含以下详细信息：用户姓名、所属单位名称、所属项目名称、排班规则名称、具体班次名称、值班日期、规定的值班时间范围、实际打卡时间、考勤状态、是否已发起申诉、是否已申请请假。\n</润色后>","refusal":null,"role":"assistant","annotations":null,"audio":null,"function_call":null,"tool_calls":null,"provider_specific_fields":{"reasoning":null,"refusal":null}},"provider_specific_fields":{"stop_reason":null,"token_ids":null}}],"created":1784000893,"model":"Qwen3-30B-A3B-Instruct-2507","object":"chat.completion","service_tier":null,"system_fingerprint":null,"usage":{"completion_tokens":106,"prompt_tokens":3060,"total_tokens":3166,"completion_tokens_details":null,"prompt_tokens_details":null}}[0m
+[32m2026-07-14 11:48:14[0m | [1mINFO    [0m | [36mquery.py[0m:[33m130[0m@[36m_finalize_query[0m - [1m润色后的查询: 
+请列出昨天（2026年7月13日）所有考勤状态为“迟到”、“早退”、“未签退”、“缺勤”等异常状态的用户列表，包含以下详细信息：用户姓名、所属单位名称、所属项目名称、排班规则名称、具体班次名称、值班日期、规定的值班时间范围、实际打卡时间、考勤状态、是否已发起申诉、是否已申请请假。
+[0m
+[32m2026-07-14 11:48:15[0m | [1mINFO    [0m | [36mquery.py[0m:[33m136[0m@[36m_finalize_query[0m - [1m完成生成查询向量[0m
+[32m2026-07-14 11:48:35[0m | [34m[1mDEBUG   [0m | [36mllm_service.py[0m:[33m312[0m@[36mask_llm[0m - [34m[1m[GENERATE DIALOGUE][0m
+[32m2026-07-14 11:48:35[0m | [34m[1mDEBUG   [0m | [36mllm_service.py[0m:[33m314[0m@[36mask_llm[0m - [34m[1m[USER]
+
+请列出昨天（2026年7月13日）所有考勤状态为“迟到”、“早退”、“未签退”、“缺勤”等异常状态的用户列表，包含以下详细信息：用户姓名、所属单位名称、所属项目名称、排班规则名称、具体班次名称、值班日期、规定的值班时间范围、实际打卡时间、考勤状态、是否已发起申诉、是否已申请请假。
+
+
+[0m
+[32m2026-07-14 11:48:35[0m | [1mINFO    [0m | [36mllm_service.py[0m:[33m315[0m@[36mask_llm[0m - [1m[ASSISTANT]
+<think>
+用户要求查询昨天（2026 年 7 月 13 日）所有考勤异常状态的用户列表，需要包含详细信息。
+
+让我分析：
+1. 用户问题是查询特定日期（2026-07-13）的考勤异常用户列表
+2. 需要包含的字段：用户名称、单位名称、项目名称、排班名称、班次名称、值班日期、值班时间、打卡时间、考勤状态、是否申诉、是否请假
+3. 考勤状态需要是异常状态：迟到、早退、未签退、缺勤等（即 != '正常'）
+
+查看 SQL 缓存模板：
+- 模板 1：查询特定时间用户异常考勤的条目，字段包含用户名称、单位名称、排班名称、值班日期、考勤状态、是否申诉、是否请假
+- 这个模板非常适合用户需求
+
+命中要求：
+1. 修改 BETWEEN 的时间为 2026-07-13
+2. 模板 1 已经包含了大部分需要的字段，但缺少"项目名称"和"班次名称"，需要根据表结构补充
+
+查看 imoc_attendance_all 表结构，包含的字段有：
+- 用户名称、单位名称、项目名称、排班名称、班次名称、值班日期、值班时间、打卡时间、考勤状态、是否申诉、是否请假
+
+
+- 模板 1 需要补充项目名称和班次名称字段
+- 时间范围设置为 2026-07-13 到 2026-07-13
+
+我将使用模板 1，添加缺失字段，并设置正确的日期范围。
+</think>
+
+
+<sql>
+SELECT 
+	"用户名称", "单位名称", "项目名称", "排班名称", "班次名称", "值班日期", "值班时间", "打卡时间", "考勤状态", "是否申诉", "是否请假" 
+FROM imoc_attendance_all 
+WHERE "考勤状态" != '正常' AND "值班日期" BETWEEN '2026-07-13' AND '2026-07-13';
+</sql>
+
+[0m
+[32m2026-07-14 11:48:35[0m | [1mINFO    [0m | [36mllm_service.py[0m:[33m316[0m@[36mask_llm[0m - [1m[USAGE] reasoning_tokens:349 completion_tokens:454[0m
+[32m2026-07-14 11:48:35[0m | [34m[1mDEBUG   [0m | [36msql_service.py[0m:[33m278[0m@[36m_execute_sql_sync[0m - [34m[1m###### SQL原始字符串: ['\nSELECT \n\t"用户名称", "单位名称", "项目名称", "排班名称", "班次名称", "值班日期", "值班时间", "打卡时间", "考勤状态", "是否申诉", "是否请假" \nFROM imoc_attendance_all \nWHERE "考勤状态" != \'正常\' AND "值班日期" BETWEEN \'2026-07-13\' AND \'2026-07-13\';\n'][0m
+[32m2026-07-14 11:48:37[0m | [1mINFO    [0m | [36mquery.py[0m:[33m85[0m@[36mgenerate_and_query_db[0m - [1m查询成功: 返回 11 列; 8 行[0m
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+[32m2026-07-14 15:50:23[0m | [1mINFO    [0m | [36mmain.py[0m:[33m20[0m@[36mlifespan[0m - [1mFastAPI应用正在关闭...[0m
+INFO:     Application shutdown complete.
+INFO:     Finished server process [26895]

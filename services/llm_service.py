@@ -66,22 +66,18 @@ class LLMService:
         messages: Iterable[ChatCompletionMessageParam | dict[str, str]],
         sys_prompt: str | None = None,
     ) -> str:
-        """识别用户查询意图（考勤/工单）"""
+        """识别用户查询意图（考勤/工单/告警）"""
         from prompts import INTENT_RECOGNITION
 
         prepared_frontend_messages = self.prepare_messages(messages)
-        logger.debug(
-            f"[FRONTEND MESSAGES]\n{json.dumps(prepared_frontend_messages, ensure_ascii=False, indent=2)}"
-        )
         latest_user_message = self.get_latest_user_message(prepared_frontend_messages)
-        intent_messages = self.replace_latest_user_message(
-            prepared_frontend_messages,
-            f"<用户问题>\n{latest_user_message}\n</用户问题>",
-        )
+        # 意图识别只需最新一条用户消息，发送全部历史会超出FLASH_MODEL的65536 token限制
+        intent_messages = [{"role": "user", "content": f"<用户问题>\n{latest_user_message}\n</用户问题>"}]
         completion = await self.client.chat.completions.create(
             model=settings.FLASH_MODEL,
             messages=self.prepare_messages(intent_messages, sys_prompt or INTENT_RECOGNITION),
             stream=False,
+            extra_body=dict(chat_template_kwargs=dict(enable_thinking=False)),
             extra_authorization_key=settings.FLASH_MODEL_KEY,
         )
         llm_output = completion.choices[0].message.content
@@ -89,6 +85,8 @@ class LLMService:
             return "attendance"
         elif "<工单>" in llm_output:
             return "bpm"
+        elif "<告警>" in llm_output:
+            return "alert"
         else:
             raise ValueError(f"LLM意图识别错误. 原始输出: {llm_output}")
 
@@ -108,11 +106,16 @@ class LLMService:
         yield ("final_parsed_query", result)
         """
         from prompts import NER_SYS, DETERMINE_SEMANTICS_SYS
-        from source.tables import ATTDN_RAW, BPM_RAW
+        from source.tables import ATTDN_RAW, BPM_RAW, ALERT_RAW
         from services.sql_service import sql_service
 
         original_query = self.get_latest_user_message(messages)
-        table_schemas = ATTDN_RAW if intent in ('attendance', 'attdance') else BPM_RAW
+        if intent in ('attendance', 'attdance'):
+            table_schemas = ATTDN_RAW
+        elif intent == 'alert':
+            table_schemas = ALERT_RAW
+        else:
+            table_schemas = BPM_RAW
 
         # 1. 实体提取 (NER)
         ner_messages = self.replace_latest_user_message(
@@ -133,11 +136,40 @@ class LLMService:
         logger.debug(f"[NER OUTPUT] {ner_output}")
         yield ("ner_reply", ner_output)
 
-        # 提取JSON中的实体
+        # 提取JSON中的实体（增强容错）
         entities = []
         try:
-            match = re.search(r'```json\n(.*?)\n```', ner_output, re.DOTALL)
-            json_str = match.group(1) if match else ner_output
+            # 尝试多种JSON提取模式
+            json_str = None
+            for pattern in [
+                r'```json\s*(.*?)\s*```',
+                r'```\s*(.*?)\s*```',
+                r'\{[^{}]*"实体"[^{}]*\}',
+            ]:
+                match = re.search(pattern, ner_output, re.DOTALL)
+                if match:
+                    json_str = match.group(1) if '```' in pattern else match.group()
+                    break
+            if not json_str:
+                json_str = ner_output
+            json_str = json_str.strip()
+            # 去掉markdown代码块残留
+            json_str = re.sub(r'^```\w*\s*', '', json_str)
+            json_str = re.sub(r'\s*```$', '', json_str)
+            # 只取第一个完整JSON对象
+            brace_start = json_str.find('{')
+            if brace_start >= 0:
+                brace_count = 0
+                brace_end = brace_start
+                for i in range(brace_start, len(json_str)):
+                    if json_str[i] == '{':
+                        brace_count += 1
+                    elif json_str[i] == '}':
+                        brace_count -= 1
+                        if brace_count == 0:
+                            brace_end = i + 1
+                            break
+                json_str = json_str[brace_start:brace_end]
             ner_json = json.loads(json_str)
             entities = ner_json.get("实体", [])
         except Exception as e:
@@ -233,15 +265,24 @@ class LLMService:
         self,
         messages: Iterable[ChatCompletionMessageParam | dict[str, str]],
         table_view_struct: str,
+        intent: str = "",
         sys_prompt: str | None = None,
     ) -> str:
         """润色用户查询"""
         from prompts import POLISH_SYS
         from utils.helpers import extract_last_tag_content
 
+        # 根据意图生成领域描述
+        intent_descs = {
+            "alert": "设备告警监控领域。只能使用设备告警记录表(view_alert_all)、设备所属单位表(view_alert_organization)、设备所属业务表(view_alert_business)中的字段。",
+            "bpm": "工单流程管理领域。只能使用流程实例表(bpm_maindata/bpm_archiveddata)、流程模型表(bpm_modprocesslist)及其XmlData中的字段。",
+            "attendance": "考勤管理领域。优先使用imoc_attendance_all视图（字段全中文，可直接用中文字段名）。若imoc_attendance_all不可用，则基于imoc_class_duty_user表。辅助表：考勤人员表(imoc_class_user)、打卡记录表(imoc_checkin_user)、排班表(imoc_class_duty)、项目表(imoc_class_project)。",
+        }
+        intent_desc = intent_descs.get(intent, "")
+
         datetime_today = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         polish_sys = sys_prompt or POLISH_SYS.format(
-            table_view_struct=table_view_struct, datetime_today=datetime_today)
+            table_view_struct=table_view_struct, datetime_today=datetime_today, intent_desc=intent_desc)
 
         latest_user_message = self.get_latest_user_message(messages)
         polish_messages = self.replace_latest_user_message(
@@ -262,7 +303,7 @@ class LLMService:
         self,
         messages: Iterable[ChatCompletionMessageParam | dict[str, str]],
         *,
-        enable_thinking: bool = True,
+        enable_thinking: bool = False,
         sys_prompt: str | None = None,
         model: str | None = None,
         authorization_key: str | None = None,
@@ -320,6 +361,7 @@ class LLMService:
         self,
         messages: Iterable[ChatCompletionMessageParam | dict[str, str]],
         sys_prompt: str | None = None,
+        enable_thinking: bool = False,
     ):
         """
         生成SQL语句（流式响应）- 返回异步生成器
@@ -330,13 +372,25 @@ class LLMService:
         # 收集流式响应的所有chunk
         sql_response = ""
 
-        agen = self.ask_llm(messages, sys_prompt=sys_prompt)
+        agen = self.ask_llm(messages, sys_prompt=sys_prompt, enable_thinking=enable_thinking)
         async for content in agen:
             sql_response += content
             yield content
 
         # 返回最终提取的SQL
+        import re
         extracted_sql = extract_last_tag_content(sql_response, "sql")
+        if extracted_sql:
+            # 修复LLM在中英文之间误加空格的问题，如"事件 ID" -> "事件ID", "触发器 ID" -> "触发器ID"
+            # 匹配任何CJK字符后跟空格再跟ASCII字母/数字/下划线的情况，移除中间空格
+            extracted_sql = re.sub(
+                r'([一-鿿㐀-䶿豈-﫿])\s+([A-Za-z0-9_])',
+                r'\1\2',
+                extracted_sql,
+            )
+        else:
+            logger.error(f"未能从LLM响应中提取SQL: {sql_response[-500:]}")
+            extracted_sql = sql_response  # 兜底：用原始响应
         yield None, extracted_sql  # 使用None标记结束，并返回提取的SQL
 
     async def generate_embedding(self, text: str) -> list[float]:

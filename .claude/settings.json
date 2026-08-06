@@ -1,0 +1,18 @@
+{
+  "env": {
+    "ANTHROPIC_BASE_URL": "https://api.deepseek.com/anthropic",
+    "ANTHROPIC_AUTH_TOKEN": "sk-e8ec2b76b86c4285947b1d79729e8635",
+    "ANTHROPIC_MODEL": "deepseek-v4-pro[1m]",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "deepseek-v4-pro[1m]",  
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "deepseek-v4-pro[1m]",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "deepseek-v4-flash",
+    "CLAUDE_CODE_SUBAGENT_MODEL": "deepseek-v4-flash",
+    "CLAUDE_CODE_EFFORT_LEVEL": "max"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(python -c \"from backend.schemas.models.message import StreamChunk, StreamEventType; from uuid import uuid4; print\\(StreamEventType.CONTENT_DELTA\\); c = StreamChunk\\(event='content_delta', message_id=uuid4\\(\\), session_id=uuid4\\(\\), content='Hello'\\); print\\(c.model_dump_json\\(\\)\\); c2 = StreamChunk\\(event='message_stop', message_id=uuid4\\(\\), session_id=uuid4\\(\\), sequence_no=5, token_count=120\\); print\\(c2.model_dump_json\\(\\)\\)\")",
+      "Bash(python -c ' *)"
+    ]
+  }
+}

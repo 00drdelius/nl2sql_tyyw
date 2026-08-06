@@ -15,6 +15,7 @@ from api.schemas.query import (
     HistoryRecordResponse,
     QueryRequest,
     QueryResponse,
+    QueryResult,
     SessionSummaryResponse,
 )
 from db.database import DatabaseOperator
@@ -24,6 +25,7 @@ from services.milvus_service import milvus_service
 from services.sql_service import sql_service
 from prompts import (
     ATTENDANCE_TABLE_DESCRIPTIONS, BPM_TABLE_DESCRIPTIONS,
+    ALERT_TABLE_DESCRIPTIONS, ALERT_NOTE,
     FEEDBACK_SYS, GENERATE_SYS_V2,
     BPM_NOTE, ATTENDANCE_NOTE
 )
@@ -61,10 +63,10 @@ async def generate_and_query_db(
         if attempt > 0:
             logger.info(f"============== 第 {attempt} 次尝试修正 SQL ==============")
 
-        # 调用大模型生成SQL（流式）
+        # 调用大模型生成SQL（流式），首次快速，重试时开思考
         sql_response = ""
         extracted_sql = ""
-        async for chunk in llm_service.generate_sql(working_messages, sys_prompt=gen_sys):
+        async for chunk in llm_service.generate_sql(working_messages, sys_prompt=gen_sys, enable_thinking=(attempt > 0)):
             if isinstance(chunk, tuple) and chunk[0] is None:
                 # 结束标记，提取的SQL
                 extracted_sql = chunk[1]
@@ -78,6 +80,24 @@ async def generate_and_query_db(
                 yield f"data: {chunk_resp.model_dump_json()}\n\n"
 
         sql_content = extracted_sql
+
+        # SQL预校验：修正已知的常见字段名错误，避免不必要的重试
+        import re
+        # 大小写修正
+        sql_content = re.sub(r'"主机ID"', '"主机id"', sql_content)
+        sql_content = re.sub(r'"事件ID"', '"事件id"', sql_content)
+        sql_content = re.sub(r'"触发器ID"', '"触发器id"', sql_content)
+        # 关键字粘合修正
+        sql_content = re.sub(r'(\S)(FROM\s)', r'\1 \2', sql_content)
+        sql_content = re.sub(r'(\S)(LEFT JOIN\s)', r'\1 \2', sql_content)
+        sql_content = re.sub(r'(\S)(WHERE\s)', r'\1 \2', sql_content)
+        # 表主键名修正：LLM常编造不存在的列名
+        sql_content = re.sub(r'(\b\w+\.)project_id', r'\1id', sql_content)
+        sql_content = re.sub(r'(\b\w+\.)team_id', r'\1id', sql_content)
+        sql_content = re.sub(r'ON\s+\w+\.id\s*=\s*\w+\.id\s+', lambda m: m.group(), sql_content)  # no-op, just checking
+        # 修正 ON d.userid = u.id → ON d.userid = u.userid
+        sql_content = re.sub(r'ON\s+d\.userid\s*=\s*u\.id\b', r'ON d.userid = u.userid', sql_content, flags=re.IGNORECASE)
+
         working_messages.append({"role": "assistant", "content": sql_response})
 
         try:
@@ -122,11 +142,38 @@ async def _finalize_query(
     db_operator: DatabaseOperator,
     existing_record: bool,
 ) -> AsyncGenerator[str, None]:
-    note = BPM_NOTE if intent == "bpm" else ATTENDANCE_NOTE
-    table_descriptions = ATTENDANCE_TABLE_DESCRIPTIONS if intent == "attendance" else BPM_TABLE_DESCRIPTIONS
+    def _strip_table_descs(descs: list[str]) -> str:
+        """精简表描述：去掉字段的长描述，只保留表名和字段名"""
+        import re
+        stripped = []
+        for desc in descs:
+            lines = desc.split('\n')
+            new_lines = []
+            for line in lines:
+                if line.startswith('表名：') or line.startswith('表字段：'):
+                    new_lines.append(line)
+                elif ':' in line and not line.startswith('表'):
+                    # 字段行：只保留字段名
+                    new_lines.append(line.split(':')[0].strip())
+            # 把字段名用逗号连接成一行
+            fields = [l for l in new_lines if '：' not in l and l]
+            header = [l for l in new_lines if '：' in l]
+            stripped.append('\n'.join(header + [', '.join(fields)]))
+        return '\n\n'.join(stripped)
+
+    if intent == "alert":
+        note = ALERT_NOTE
+        table_descriptions = ALERT_TABLE_DESCRIPTIONS
+    elif intent == "bpm":
+        note = BPM_NOTE
+        table_descriptions = BPM_TABLE_DESCRIPTIONS
+    else:
+        note = ATTENDANCE_NOTE
+        table_descriptions = ATTENDANCE_TABLE_DESCRIPTIONS
 
     parsed_messages = llm_service.replace_latest_user_message(messages, parsed_query)
-    polished_query = await llm_service.polish_query(parsed_messages, str(table_descriptions))
+    light_table_descs = _strip_table_descs(table_descriptions)
+    polished_query = await llm_service.polish_query(parsed_messages, light_table_descs, intent=intent)
     logger.info(f"润色后的查询: {polished_query}")
 
     polish_resp = ChunkResponse(id=query_id, type="polish_query", content=f"[润色查询] {polished_query}")
@@ -151,12 +198,44 @@ async def _finalize_query(
         elif isinstance(result, tuple):
             sql_content, query_result, sql_generation_messages = result
 
+    # 告警结果后处理
+    if intent == "alert" and query_result and query_result.get("columns") and query_result.get("rows"):
+        import re
+        columns = query_result["columns"]
+
+        # 1. 清洗设备名称：提取纯IP
+        device_col_idx = columns.index("设备名称") if "设备名称" in columns else None
+        if device_col_idx is not None:
+            for row in query_result["rows"]:
+                raw_name = row[device_col_idx]
+                if raw_name and isinstance(raw_name, str):
+                    match = re.search(r'\d+\.\d+\.\d+\.\d+', raw_name)
+                    if match:
+                        row[device_col_idx] = match.group()
+
+        # 2. 清洗时间字段：去掉时区后缀 "+08"
+        for time_col in ["告警时间", "恢复时间"]:
+            col_idx = columns.index(time_col) if time_col in columns else None
+            if col_idx is not None:
+                for row in query_result["rows"]:
+                    val = row[col_idx]
+                    if val and isinstance(val, str):
+                        row[col_idx] = re.sub(r'\+08$', '', val).strip()
+
+        # 3. 清理空/无效的恢复时间
+        restore_col_idx = columns.index("恢复时间") if "恢复时间" in columns else None
+        if restore_col_idx is not None:
+            for row in query_result["rows"]:
+                val = row[restore_col_idx]
+                if val is None or (isinstance(val, str) and val.strip() in ('', '1970-01-01 08:00:00')):
+                    row[restore_col_idx] = ""
+
     data_analysis = llm_service.generate_data_analysis(query_result)
     final_response_payload = QueryResponse(
         original_query=original_query,
         polished_query=polished_query,
         sql_dialect=sql_content,
-        result=None,
+        result=QueryResult(**query_result),
         natural_answer=None,
         data_analysis=data_analysis,
     )

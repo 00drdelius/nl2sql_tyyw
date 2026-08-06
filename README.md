@@ -34,10 +34,10 @@
 
 本系统隶属于**统一运维项目**，为其提供自然语言转 SQL（Text-to-SQL）的智能查询服务。目前系统已接入统一运维项目下的**两大业务域数据库**：
 
-| 业务域 | 数据库类型 | 典型查询场景 |
-|--------|-----------|-------------|
-| 🏢 **考勤管理（Attendance）** | MySQL 8.0 | 人员出勤统计、异常考勤追踪、排班查询 |
-| 📋 **工单流程（BPM）** | MySQL 5.7 | 工单流转状态、故障类型统计、流程归档查询 |
+| 业务域                             | 数据库类型 | 典型查询场景                             |
+| ---------------------------------- | ---------- | ---------------------------------------- |
+| 🏢**考勤管理（Attendance）** | MySQL 8.0  | 人员出勤统计、异常考勤追踪、排班查询     |
+| 📋**工单流程（BPM）**        | MySQL 5.7  | 工单流转状态、故障类型统计、流程归档查询 |
 
 > **项目对接人**：林建峰（二机楼）
 
@@ -261,15 +261,15 @@ fastapi_server/
 
 ### 4.1 环境要求
 
-| 组件 | 版本要求 | 用途 |
-|------|---------|------|
-| Python | ≥ 3.10 | 应用运行环境 |
-| Docker + Docker Compose | 最新稳定版 | 基础设施容器化 |
-| PostgreSQL | 16+ | 对话历史持久化存储 |
-| Milvus | 2.6.11 | 向量数据库（表结构语义检索） |
-| MySQL | 8.0 | 业务数据库（考勤 / 工单数据） |
-| etcd | 3.5.25 | Milvus 依赖（元数据存储） |
-| MinIO | 最新版 | Milvus 依赖（对象存储） |
+| 组件                    | 版本要求   | 用途                          |
+| ----------------------- | ---------- | ----------------------------- |
+| Python                  | ≥ 3.10    | 应用运行环境                  |
+| Docker + Docker Compose | 最新稳定版 | 基础设施容器化                |
+| PostgreSQL              | 16+        | 对话历史持久化存储            |
+| Milvus                  | 2.6.11     | 向量数据库（表结构语义检索）  |
+| MySQL                   | 8.0        | 业务数据库（考勤 / 工单数据） |
+| etcd                    | 3.5.25     | Milvus 依赖（元数据存储）     |
+| MinIO                   | 最新版     | Milvus 依赖（对象存储）       |
 
 ### 4.2 基础设施部署（Docker Compose）
 
@@ -292,12 +292,12 @@ docker compose ps
 
 服务端口映射：
 
-| 服务 | 容器端口 | 宿主机端口 | 说明 |
-|------|---------|-----------|------|
-| Milvus | 19530 | 19530 | 向量数据库 gRPC |
-| Milvus Health | 9091 | 9091 | 健康检查 |
-| MySQL | 3306 | 3306 | 业务数据库 |
-| MinIO Console | 9001 | 9001 | 对象存储控制台 |
+| 服务          | 容器端口 | 宿主机端口 | 说明            |
+| ------------- | -------- | ---------- | --------------- |
+| Milvus        | 19530    | 19530      | 向量数据库 gRPC |
+| Milvus Health | 9091     | 9091       | 健康检查        |
+| MySQL         | 3306     | 3306       | 业务数据库      |
+| MinIO Console | 9001     | 9001       | 对象存储控制台  |
 
 **第 2 步：初始化 PostgreSQL 对话历史库**
 
@@ -366,53 +366,53 @@ python scripts/build_collection_bpm.py
 
 ### 服务器配置
 
-| 变量名 | 类型 | 默认值 | 说明 |
-|--------|------|--------|------|
-| `HOST` | str | `0.0.0.0` | 服务监听地址 |
-| `PORT` | int | `10000` | 服务监听端口（测试模式自动切换为 `10001`） |
-| `TEST_MODE` | bool | `false` | 是否开启测试模式（影响端口、日志目录、SQL 执行器） |
-| `LOG_LEVEL` | str | `INFO` | 日志级别（DEBUG / INFO / WARNING / ERROR） |
+| 变量名        | 类型 | 默认值      | 说明                                               |
+| ------------- | ---- | ----------- | -------------------------------------------------- |
+| `HOST`      | str  | `0.0.0.0` | 服务监听地址                                       |
+| `PORT`      | int  | `10000`   | 服务监听端口（测试模式自动切换为`10001`）        |
+| `TEST_MODE` | bool | `false`   | 是否开启测试模式（影响端口、日志目录、SQL 执行器） |
+| `LOG_LEVEL` | str  | `INFO`    | 日志级别（DEBUG / INFO / WARNING / ERROR）         |
 
 ### LLM API 配置
 
-| 变量名 | 说明 |
-|--------|------|
-| `OPENAI_API_KEY_1` | LLM API 的认证 Key |
+| 变量名                | 说明                                    |
+| --------------------- | --------------------------------------- |
+| `OPENAI_API_KEY_1`  | LLM API 的认证 Key                      |
 | `OPENAI_API_BASE_1` | LLM API 的 Base URL（兼容 OpenAI 协议） |
 
 ### 模型配置
 
 系统使用 4 个独立模型分别承担不同任务：
 
-| 变量名 | 用途 | 典型值 |
-|--------|------|--------|
-| `FLASH_MODEL` | 意图识别（快速、轻量） | `Qwen3-30B-A3B-Instruct-2507` |
-| `FLASH_MODEL_KEY` | FLASH 模型认证 Key | — |
-| `POLISH_MODEL` | 查询润色 | `Qwen3-32B` |
-| `POLISH_MODEL_KEY` | POLISH 模型认证 Key | — |
-| `GENERATE_MODEL` | NER / 语义解析 / SQL 生成（最强模型） | `Qwen3.5-397B-A17B` |
-| `GENERATE_MODEL_KEY` | GENERATE 模型认证 Key | — |
-| `EMBEDDING_MODEL` | 文本向量化 | `Qwen3-Embedding-4B` |
-| `EMBEDDING_MODEL_KEY` | EMBEDDING 模型认证 Key | — |
+| 变量名                  | 用途                                  | 典型值                          |
+| ----------------------- | ------------------------------------- | ------------------------------- |
+| `FLASH_MODEL`         | 意图识别（快速、轻量）                | `Qwen3-30B-A3B-Instruct-2507` |
+| `FLASH_MODEL_KEY`     | FLASH 模型认证 Key                    | —                              |
+| `POLISH_MODEL`        | 查询润色                              | `Qwen3-32B`                   |
+| `POLISH_MODEL_KEY`    | POLISH 模型认证 Key                   | —                              |
+| `GENERATE_MODEL`      | NER / 语义解析 / SQL 生成（最强模型） | `Qwen3.5-397B-A17B`           |
+| `GENERATE_MODEL_KEY`  | GENERATE 模型认证 Key                 | —                              |
+| `EMBEDDING_MODEL`     | 文本向量化                            | `Qwen3-Embedding-4B`          |
+| `EMBEDDING_MODEL_KEY` | EMBEDDING 模型认证 Key                | —                              |
 
 ### Milvus 向量数据库
 
-| 变量名 | 类型 | 默认值 | 说明 |
-|--------|------|--------|------|
-| `MILVUS_HOST` | str | `localhost` | Milvus 服务地址 |
-| `MILVUS_PORT` | str | `19530` | Milvus gRPC 端口 |
+| 变量名          | 类型 | 默认值        | 说明             |
+| --------------- | ---- | ------------- | ---------------- |
+| `MILVUS_HOST` | str  | `localhost` | Milvus 服务地址  |
+| `MILVUS_PORT` | str  | `19530`     | Milvus gRPC 端口 |
 
 ### PostgreSQL（对话历史存储）
 
-| 变量名 | 类型 | 默认值 | 说明 |
-|--------|------|--------|------|
-| `DB_HOST` | str | `localhost` | PostgreSQL 主机 |
-| `DB_PORT` | int | `5432` | PostgreSQL 端口 |
-| `DB_NAME` | str | `myapp` | 数据库名 |
-| `DB_USER` | str | `myapp_user` | 数据库用户 |
-| `DB_PASSWORD` | str | `myapp_password` | 数据库密码 |
-| `DATABASE_URL` | str | (空) | 完整 DSN（优先级最高，设置后忽略上述五项） |
-| `DB_ECHO` | bool | `false` | 是否打印 SQL 日志 |
+| 变量名           | 类型 | 默认值             | 说明                                       |
+| ---------------- | ---- | ------------------ | ------------------------------------------ |
+| `DB_HOST`      | str  | `localhost`      | PostgreSQL 主机                            |
+| `DB_PORT`      | int  | `5432`           | PostgreSQL 端口                            |
+| `DB_NAME`      | str  | `myapp`          | 数据库名                                   |
+| `DB_USER`      | str  | `myapp_user`     | 数据库用户                                 |
+| `DB_PASSWORD`  | str  | `myapp_password` | 数据库密码                                 |
+| `DATABASE_URL` | str  | (空)               | 完整 DSN（优先级最高，设置后忽略上述五项） |
+| `DB_ECHO`      | bool | `false`          | 是否打印 SQL 日志                          |
 
 > **DATABASE_URL 格式**：`postgresql+asyncpg://user:password@host:port/dbname`
 >
@@ -439,10 +439,10 @@ python scripts/build_collection_bpm.py
 }
 ```
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| `status` | string | 服务状态（healthy） |
-| `database_connected` | boolean | 数据库连接状态 |
+| 字段                   | 类型    | 说明                |
+| ---------------------- | ------- | ------------------- |
+| `status`             | string  | 服务状态（healthy） |
+| `database_connected` | boolean | 数据库连接状态      |
 
 ---
 
@@ -465,20 +465,20 @@ python scripts/build_collection_bpm.py
 }
 ```
 
-| 字段 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `query` | string | ✅ | 用户的自然语言查询 |
-| `user_id` | string | ✅ | 用户标识 |
-| `authorization` | string | ✅ | 后端 SQL 执行引擎认证令牌（Bearer Token）。**背景说明**：统一运维项目的业务数据库无法由本服务直连，生成的 SQL 需通过 [`sql_executor.py`](sql_executor.py) 加密后发给项目方提供的 `/backend_api/aiops/sql-executor/execute` 接口代为执行并返回结果。此 token 是登录**统一运维平台**后获取的鉴权 Bearer API-Key，若需测试，请先登录统一运维平台，通过浏览器开发者工具抓取 HTTP 请求中的 `Authorization` 头获取。 |
-| `session_id` | string | ❌ | 会话标识，不传则自动生成 UUID |
+| 字段              | 类型   | 必填 | 说明                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| ----------------- | ------ | ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `query`         | string | ✅   | 用户的自然语言查询                                                                                                                                                                                                                                                                                                                                                                                                              |
+| `user_id`       | string | ✅   | 用户标识                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| `authorization` | string | ✅   | 后端 SQL 执行引擎认证令牌（Bearer Token）。**背景说明**：统一运维项目的业务数据库无法由本服务直连，生成的 SQL 需通过 [`sql_executor.py`](sql_executor.py) 加密后发给项目方提供的 `/backend_api/aiops/sql-executor/execute` 接口代为执行并返回结果。此 token 是登录**统一运维平台**后获取的鉴权 Bearer API-Key，若需测试，请先登录统一运维平台，通过浏览器开发者工具抓取 HTTP 请求中的 `Authorization` 头获取。 |
+| `session_id`    | string | ❌   | 会话标识，不传则自动生成 UUID                                                                                                                                                                                                                                                                                                                                                                                                   |
 
 **错误响应**（同步，HTTP 400）:
 
-| 场景 | HTTP 状态码 | 响应 |
-|------|-----------|------|
-| query 为空 | 400 | `{"detail": "查询内容不能为空"}` |
-| user_id 为空 | 400 | `{"detail": "user_id不能为空"}` |
-| authorization 为空 | 400 | `{"detail": "Authorization不能为空"}` |
+| 场景               | HTTP 状态码 | 响应                                    |
+| ------------------ | ----------- | --------------------------------------- |
+| query 为空         | 400         | `{"detail": "查询内容不能为空"}`      |
+| user_id 为空       | 400         | `{"detail": "user_id不能为空"}`       |
+| authorization 为空 | 400         | `{"detail": "Authorization不能为空"}` |
 
 **SSE 流式响应**：每条消息格式为 `data: {JSON}\n\n`，JSON 结构如下（详见 [6.7 节](#67-sse-流式响应类型说明)）：
 
@@ -517,19 +517,19 @@ python scripts/build_collection_bpm.py
 }
 ```
 
-| 字段 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `messages` | ChatMessage[] | ✅ | 完整历史对话数组（不含 system prompt） |
-| `user_id` | string | ✅ | 用户标识 |
-| `authorization` | string | ✅ | 后端 SQL 执行引擎认证令牌（Bearer Token），来源说明同上（从统一运维平台登录后获取）。 |
-| `session_id` | string | ✅ | 会话标识 |
+| 字段              | 类型          | 必填 | 说明                                                                                  |
+| ----------------- | ------------- | ---- | ------------------------------------------------------------------------------------- |
+| `messages`      | ChatMessage[] | ✅   | 完整历史对话数组（不含 system prompt）                                                |
+| `user_id`       | string        | ✅   | 用户标识                                                                              |
+| `authorization` | string        | ✅   | 后端 SQL 执行引擎认证令牌（Bearer Token），来源说明同上（从统一运维平台登录后获取）。 |
+| `session_id`    | string        | ✅   | 会话标识                                                                              |
 
 **ChatMessage 结构**:
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| `role` | `"user"` \| `"assistant"` | 消息角色 |
-| `content` | string | 消息内容（最少 1 个字符） |
+| 字段        | 类型                          | 说明                      |
+| ----------- | ----------------------------- | ------------------------- |
+| `role`    | `"user"` \| `"assistant"` | 消息角色                  |
+| `content` | string                        | 消息内容（最少 1 个字符） |
 
 > **多轮对话典型场景**：用户在语义确定阶段需要回复确认消息（如选择 A/B/C），此时前端应将完整的对话历史（包括 assistant 的询问消息和 user 的选择回复）一并传入。
 
@@ -551,11 +551,11 @@ python scripts/build_collection_bpm.py
 }
 ```
 
-| 字段 | 类型 | 必填 | 默认值 | 说明 |
-|------|------|------|--------|------|
-| `user_id` | string | ✅ | — | 用户标识 |
-| `limit` | int | ❌ | 50 | 每页返回数量 |
-| `offset` | int | ❌ | 0 | 分页偏移量 |
+| 字段        | 类型   | 必填 | 默认值 | 说明         |
+| ----------- | ------ | ---- | ------ | ------------ |
+| `user_id` | string | ✅   | —     | 用户标识     |
+| `limit`   | int    | ❌   | 50     | 每页返回数量 |
+| `offset`  | int    | ❌   | 0      | 分页偏移量   |
 
 **成功响应**（HTTP 200） — `SessionSummaryResponse[]`:
 
@@ -574,16 +574,16 @@ python scripts/build_collection_bpm.py
 ]
 ```
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| `session_id` | string | 会话窗口 ID |
-| `query_id` | string | 该会话最近一条查询的 ID |
-| `user_id` | string | 用户标识 |
-| `intent` | string \| null | 识别出的业务意图（attendance / bpm） |
-| `status` | string \| null | 会话状态（processing / semantic_reply / completed / failed） |
-| `original_query` | string | 用户原始问题 |
-| `updated_at` | datetime | 最后更新时间 |
-| `created_at` | datetime | 创建时间 |
+| 字段               | 类型          | 说明                                                         |
+| ------------------ | ------------- | ------------------------------------------------------------ |
+| `session_id`     | string        | 会话窗口 ID                                                  |
+| `query_id`       | string        | 该会话最近一条查询的 ID                                      |
+| `user_id`        | string        | 用户标识                                                     |
+| `intent`         | string\| null | 识别出的业务意图（attendance / bpm）                         |
+| `status`         | string\| null | 会话状态（processing / semantic_reply / completed / failed） |
+| `original_query` | string        | 用户原始问题                                                 |
+| `updated_at`     | datetime      | 最后更新时间                                                 |
+| `created_at`     | datetime      | 创建时间                                                     |
 
 ---
 
@@ -604,12 +604,12 @@ python scripts/build_collection_bpm.py
 }
 ```
 
-| 字段 | 类型 | 必填 | 默认值 | 说明 |
-|------|------|------|--------|------|
-| `session_id` | string | ✅ | — | 会话窗口 ID |
-| `user_id` | string | ✅ | — | 用户标识 |
-| `limit` | int | ❌ | 100 | 每页返回数量 |
-| `offset` | int | ❌ | 0 | 分页偏移量 |
+| 字段           | 类型   | 必填 | 默认值 | 说明         |
+| -------------- | ------ | ---- | ------ | ------------ |
+| `session_id` | string | ✅   | —     | 会话窗口 ID  |
+| `user_id`    | string | ✅   | —     | 用户标识     |
+| `limit`      | int    | ❌   | 100    | 每页返回数量 |
+| `offset`     | int    | ❌   | 0      | 分页偏移量   |
 
 **成功响应**（HTTP 200） — `HistoryRecordResponse[]`:
 
@@ -644,21 +644,21 @@ python scripts/build_collection_bpm.py
 ]
 ```
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| `query_id` | string | 查询唯一标识 |
-| `session_id` | string | 所属会话 ID |
-| `user_id` | string | 用户标识 |
-| `intent` | string \| null | 业务意图 |
-| `status` | string \| null | 处理状态 |
-| `original_query` | string | 用户原始问题 |
-| `parsed_query` | string \| null | 语义补全后的问题 |
-| `polished_query` | string \| null | 润色后的问题 |
-| `generated_sql` | string \| null | LLM 生成的 SQL 语句 |
-| `messages` | ChatMessage[] | 完整对话历史 |
-| `extra_payload` | object | 扩展字段（结果摘要、分析、表结构等） |
-| `created_at` | datetime | 创建时间 |
-| `updated_at` | datetime | 更新时间 |
+| 字段               | 类型          | 说明                                 |
+| ------------------ | ------------- | ------------------------------------ |
+| `query_id`       | string        | 查询唯一标识                         |
+| `session_id`     | string        | 所属会话 ID                          |
+| `user_id`        | string        | 用户标识                             |
+| `intent`         | string\| null | 业务意图                             |
+| `status`         | string\| null | 处理状态                             |
+| `original_query` | string        | 用户原始问题                         |
+| `parsed_query`   | string\| null | 语义补全后的问题                     |
+| `polished_query` | string\| null | 润色后的问题                         |
+| `generated_sql`  | string\| null | LLM 生成的 SQL 语句                  |
+| `messages`       | ChatMessage[] | 完整对话历史                         |
+| `extra_payload`  | object        | 扩展字段（结果摘要、分析、表结构等） |
+| `created_at`     | datetime      | 创建时间                             |
+| `updated_at`     | datetime      | 更新时间                             |
 
 ---
 
@@ -677,10 +677,10 @@ python scripts/build_collection_bpm.py
 }
 ```
 
-| 字段 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `session_id` | string | ✅ | 要删除的会话窗口 ID |
-| `user_id` | string | ✅ | 用户标识 |
+| 字段           | 类型   | 必填 | 说明                |
+| -------------- | ------ | ---- | ------------------- |
+| `session_id` | string | ✅   | 要删除的会话窗口 ID |
+| `user_id`    | string | ✅   | 用户标识            |
 
 **成功响应**（HTTP 200） — `DeleteSessionResponse`:
 
@@ -717,19 +717,19 @@ python scripts/build_collection_bpm.py
 
 #### 类型枚举与含义
 
-| type | content 类型 | 说明 | 出现时机 |
-|------|-------------|------|---------|
-| `recognize_intent` | string | 意图识别结果，如 `"[识别意图] attendance"` | 每次查询 |
-| `ner_reply` | string | NER 实体提取的 LLM 输出 | 提取到实体后 |
-| `semantic_reply_cot` | string | 语义确定阶段的思考过程（`<think>` 内） | 语义确定中 |
-| `semantic_reply` | string | 语义确定阶段的可见输出 | 语义确定中 |
-| `polish_query` | string | 润色后的查询语句 | 语义确定完成后 |
-| `flag_to_reply` | string | SQL 生成标记，如 `"[开始生成SQL]"` | 开始生成 SQL |
-| `stream_reply` | string | SQL 生成的流式片段（首次生成） | SQL 生成中（逐 token） |
-| `retry_reply` | string | SQL 修正的流式片段（重试时） | SQL 执行失败后重试 |
-| `query_success` | string | SQL 执行成功的确认 | SQL 执行成功后 |
-| `final_result` | QueryResponse 对象 | 完整的查询结果（详见下方） | 查询完成 |
-| `error` | string | 错误信息 | 处理失败时 |
+| type                   | content 类型       | 说明                                        | 出现时机               |
+| ---------------------- | ------------------ | ------------------------------------------- | ---------------------- |
+| `recognize_intent`   | string             | 意图识别结果，如`"[识别意图] attendance"` | 每次查询               |
+| `ner_reply`          | string             | NER 实体提取的 LLM 输出                     | 提取到实体后           |
+| `semantic_reply_cot` | string             | 语义确定阶段的思考过程（`<think>` 内）    | 语义确定中             |
+| `semantic_reply`     | string             | 语义确定阶段的可见输出                      | 语义确定中             |
+| `polish_query`       | string             | 润色后的查询语句                            | 语义确定完成后         |
+| `flag_to_reply`      | string             | SQL 生成标记，如`"[开始生成SQL]"`         | 开始生成 SQL           |
+| `stream_reply`       | string             | SQL 生成的流式片段（首次生成）              | SQL 生成中（逐 token） |
+| `retry_reply`        | string             | SQL 修正的流式片段（重试时）                | SQL 执行失败后重试     |
+| `query_success`      | string             | SQL 执行成功的确认                          | SQL 执行成功后         |
+| `final_result`       | QueryResponse 对象 | 完整的查询结果（详见下方）                  | 查询完成               |
+| `error`              | string             | 错误信息                                    | 处理失败时             |
 
 #### `final_result` 的 content（QueryResponse）结构
 
@@ -744,30 +744,30 @@ python scripts/build_collection_bpm.py
 }
 ```
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| `original_query` | string | 用户原始输入的查询文本 |
-| `polished_query` | string | 经 LLM 润色后的具体化查询 |
-| `sql_dialect` | string | 生成的完整 SQL 语句 |
-| `result` | object \| null | SQL 原始执行结果（当前版本为 null，结果在 data_analysis 中） |
-| `natural_answer` | string \| null | 自然语言答案（当前版本未启用） |
-| `data_analysis` | string \| null | Markdown 表格格式的数据分析结果 |
+| 字段               | 类型          | 说明                                                         |
+| ------------------ | ------------- | ------------------------------------------------------------ |
+| `original_query` | string        | 用户原始输入的查询文本                                       |
+| `polished_query` | string        | 经 LLM 润色后的具体化查询                                    |
+| `sql_dialect`    | string        | 生成的完整 SQL 语句                                          |
+| `result`         | object\| null | SQL 原始执行结果（当前版本为 null，结果在 data_analysis 中） |
+| `natural_answer` | string\| null | 自然语言答案（当前版本未启用）                               |
+| `data_analysis`  | string\| null | Markdown 表格格式的数据分析结果                              |
 
 ---
 
 ## 7. 技术栈
 
-| 层级 | 技术选型 |
-|------|---------|
-| Web 框架 | FastAPI + Uvicorn |
-| 异步 ORM | SQLModel + SQLAlchemy（async）+ asyncpg |
-| 配置管理 | Pydantic Settings |
-| 日志 | Loguru |
-| LLM 调用 | OpenAI SDK（自定义 AsyncOpenAI 客户端） |
-| 向量数据库 | Milvus（PyMilvus） |
-| 数据解析 | Pandas |
-| 加密 | AES-CBC（PyCryptodome）+ HMAC-SHA256 |
-| 服务依赖 | Docker Compose（Milvus、etcd、MinIO、MySQL） |
+| 层级       | 技术选型                                     |
+| ---------- | -------------------------------------------- |
+| Web 框架   | FastAPI + Uvicorn                            |
+| 异步 ORM   | SQLModel + SQLAlchemy（async）+ asyncpg      |
+| 配置管理   | Pydantic Settings                            |
+| 日志       | Loguru                                       |
+| LLM 调用   | OpenAI SDK（自定义 AsyncOpenAI 客户端）      |
+| 向量数据库 | Milvus（PyMilvus）                           |
+| 数据解析   | Pandas                                       |
+| 加密       | AES-CBC（PyCryptodome）+ HMAC-SHA256         |
+| 服务依赖   | Docker Compose（Milvus、etcd、MinIO、MySQL） |
 
 ---
 
@@ -775,18 +775,25 @@ python scripts/build_collection_bpm.py
 
 以下文件/目录是项目中曾经使用、目前已弃用的代码，保留在仓库中供参考，**不在当前运行逻辑中生效**：
 
-| 文件/目录 | 原用途 | 废弃原因 |
-|-----------|--------|---------|
-| `graph.py` | LangGraph 工作流编排 | 改为直接调用 LLM 服务的同步式流程 |
-| `schemas/graph_state.py` | LangGraph 状态 Schema | 同上 |
-| `schemas/semantics.py` | LangGraph 语义解析结构化输出 | 语义解析改为流式多轮对话方式 |
-| `docker/langfuse/` | Langfuse LLM 可观测性平台 | LLM 追踪方案变更 |
-| `_prompts_deprecated/` | 旧版 Prompt 模板（配合 LangGraph 使用） | Prompt 统一迁移至 `prompts.py` |
-| `docker/deprecated.yaml` | 旧版 Docker Compose 编排文件 | 已迁移至新的 `docker-compose.yml` |
-| `schemas/endpoints.py` | 旧版请求/响应 Schema | 已迁移至 `api/schemas/query.py` |
-| `endpoints/`（根目录） | 旧版路由模块 | 已迁移至 `api/endpoints/` |
+| 文件/目录                  | 原用途                                  | 废弃原因                           |
+| -------------------------- | --------------------------------------- | ---------------------------------- |
+| `graph.py`               | LangGraph 工作流编排                    | 改为直接调用 LLM 服务的同步式流程  |
+| `schemas/graph_state.py` | LangGraph 状态 Schema                   | 同上                               |
+| `schemas/semantics.py`   | LangGraph 语义解析结构化输出            | 语义解析改为流式多轮对话方式       |
+| `docker/langfuse/`       | Langfuse LLM 可观测性平台               | LLM 追踪方案变更                   |
+| `_prompts_deprecated/`   | 旧版 Prompt 模板（配合 LangGraph 使用） | Prompt 统一迁移至`prompts.py`    |
+| `docker/deprecated.yaml` | 旧版 Docker Compose 编排文件            | 已迁移至新的`docker-compose.yml` |
+| `schemas/endpoints.py`   | 旧版请求/响应 Schema                    | 已迁移至`api/schemas/query.py`   |
+| `endpoints/`（根目录）   | 旧版路由模块                            | 已迁移至`api/endpoints/`         |
 
 > 如果要重新启用 LangGraph 工作流，需要：
+>
 > 1. 安装 `langgraph`、`langchain-core` 等依赖
 > 2. 将 `graph.py` 中的节点函数适配当前的 `services/*` 调用方式
 > 3. 恢复 `_prompts_deprecated/` 中的提示词模板
+
+# 切换模式
+
+切换 test/prod 只改 .env：
+TEST_MODE=true   → test 模式（172.29.8.130, 端口 10001）
+TEST_MODE=false  → prod 模式（19.112.71.86, 端口 10000）
