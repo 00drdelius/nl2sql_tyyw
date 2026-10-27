@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
-from api.endpoints import query, health
+from api.endpoints import query, health, table_preview
 from config import settings
 from db.database import DatabaseOperator
 from logg import logger
@@ -41,6 +41,7 @@ app.add_middleware(
 # 注册路由
 app.include_router(query.router)
 app.include_router(health.router)
+app.include_router(table_preview.router)
 
 
 if __name__ == "__main__":

@@ -73,6 +73,9 @@ class QueryResponse(BaseModel):
     result: Optional[QueryResult]=None
     natural_answer: Optional[str] = None
     data_analysis: Optional[str] = None
+    # 思考链路：意图、润色后问题、检索到的表、每次生成的 SQL 及其执行结果。
+    # 可选字段，老数据没有该字段时前端按“无思考链路”处理。
+    trace: Optional[Dict[str, Any]] = None
 
 
 class HealthResponse(BaseModel):
@@ -99,11 +102,12 @@ class ChunkResponse(BaseModel):
     id: Annotated[str, Field(..., default_factory=lambda: str(uuid.uuid4()))]
     type: Literal[
         'recognize_intent',
-        'ner_reply','semantic_reply_cot', 'semantic_reply',
+        'ner_reply','semantic_reply_cot', 'semantic_reply','semantic_waiting',
         'polish_query','retrieve_tables',
         'flag_to_reply','stream_reply','query_success','retry_reply',
+        'trace_step',
         'final_result', 'error']
-    content: Annotated[Union[str, QueryResponse], "response content"]
+    content: Annotated[Union[str, QueryResponse, Dict[str, Any]], "response content"]
 
 
 if __name__=='__main__':
